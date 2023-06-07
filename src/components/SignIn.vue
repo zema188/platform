@@ -1,0 +1,85 @@
+<script setup>
+import TheInput from '@/components/UI/TheInput.vue';
+import TheButton from './UI/TheButton.vue';
+import CloseCross from './UI/CloseCross.vue';
+import TheLoader from './UI/TheLoader.vue'
+
+import { useRouter, RouterLink } from 'vue-router'
+
+import { ref } from 'vue';
+import { useAuthStore } from '../stores/auth.js'
+
+const authStore = useAuthStore()
+const router = useRouter()
+const signIn = async () => {
+    await authStore.auth({email: login.value, password: password.value}, 'signInWithPassword')
+    if(!authStore.error) {
+        router.push('/home')
+    }
+}
+
+let login = ref('test@gmail.com')
+let password = ref('1231231')
+
+</script>
+
+<template>
+    <div class="login">
+        <h2>
+            Авторизация
+        </h2>
+        <div v-if="authStore.error" class="welcome__error">
+            <span>
+                {{ authStore.error }}
+            </span>
+            <CloseCross
+                @click="authStore.error = false"
+            />
+        </div>
+        <span class="subtitle">
+            Ваш e-mail
+        </span>
+        <TheInput class=""
+            :modelValue="login"    
+            :placeHolder="'Логин'"
+            v-model="login"
+            @update:modelValue="(newValue) => {(login=newValue)}"
+        />
+        <span class="subtitle">
+            Ваш пароль
+        </span>
+        <TheInput
+            :modelValue="password"    
+            :placeHolder="'Пароль'"
+            v-model="password"
+            @update:modelValue="(newValue) => {(password=newValue)}"
+        />
+        <div class="welcome__action" v-if="!authStore.loader">
+            <TheButton class="auth-btn"
+                @click="signIn">войти
+            </TheButton>
+            <div class="welcome__lead">
+                Еще не зарегистрированы ?
+                <router-link
+                    to="/signup">
+                    Зарегистрироваться
+                </router-link>
+            </div>
+        </div>
+        <TheLoader
+            class="welcome__loader"
+            v-if="authStore.loader"
+        />
+    </div>
+</template>
+
+
+<style lang="scss" >
+.login {
+
+    &__subtitle {
+
+    }
+}
+
+</style>
