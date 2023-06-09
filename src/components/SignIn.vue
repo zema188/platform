@@ -12,7 +12,7 @@ const authStore = useAuthStore()
 const signIn = async () => {
     await authStore.signIn(login.value, password.value)
 }
-let login = ref('test@gmail.com')
+let login = ref('artem@gmail.com')
 let password = ref('123123')
 
 </script>

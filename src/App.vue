@@ -13,6 +13,8 @@ onMounted(() => {
   onAuthStateChanged(auth, (User) => {
     if(User) {
       user.userIsLoggedIn = true
+      user.userInfo.uid = User.uid
+      user.userInfo.email = User.email
       console.log('авторизован')
     } else {
       console.log('не авторизован')

@@ -5,10 +5,22 @@ export const useUser = defineStore('user', () => {
     const userInfo = ref({
         token: '',
         email: '',
-        userId: '',
+        uid: '',
         refreshToken: '',
         expiresIn: ''
     });
+
     const userIsLoggedIn = ref(false)
-    return { userInfo, userIsLoggedIn }
+
+    const logOutUser = () => {
+        for (let property of Object.keys(userInfo.value)) {
+            userInfo.value[property] = '';
+        }
+        userIsLoggedIn.value = false
+    }
+
+
+
+    
+    return { userInfo, userIsLoggedIn, logOutUser }
 })

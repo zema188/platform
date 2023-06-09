@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import { useUser } from './user'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRouter } from 'vue-router'
+import { getDatabase, ref as dbRef, set } from "firebase/database";
+
 
 // const apiKey = import.meta.env.API_KEY_FIREBASE;
 // const apiKey = 'AIzaSyDHVm4_wl2OyrXes6S2O33RturQ1boQDLI'
@@ -13,14 +15,19 @@ export const useAuthStore = defineStore('auth', () => {
     const error = ref('');
     const loader = ref(false);
     const auth = getAuth()
-    const signUp = async (email, password) => {
+    const db = getDatabase();
+    const signUp = async (email, password, firstName) => {
         try {
             error.value = ''
             loader.value = !loader.value
             let response = await createUserWithEmailAndPassword(getAuth(), email, password)
+            const uid = response.user.uid
+            await set(dbRef(db, 'users/' + uid + '/info'), {
+              username: firstName,
+            });
             router.push('/login')
         } catch(err) {
-            console.log('test',err)
+            console.error(err)
             error.value = err.code
             throw error.value;
         } finally {
@@ -34,12 +41,13 @@ export const useAuthStore = defineStore('auth', () => {
             let response = await signInWithEmailAndPassword(auth, email, password)
             user.userInfo = {
                 email: response.user.email,
-                userId: response.user.uid,
+                uid: response.user.uid,
             }
             user.userIsLoggedIn = true
+
             router.push('/')
         } catch(err) {
-            console.log('test',err)
+            console.error(err)
             error.value = err.code
             throw error.value;
         } finally {
@@ -49,10 +57,10 @@ export const useAuthStore = defineStore('auth', () => {
     const signOutUser = async () => {
         try {
             let response = await signOut(auth)
-            user.userIsLoggedIn = false
+            user.logOutUser()
             router.push('/login')
         } catch(err) {
-            console.log('test',err)
+            console.error(err)
             error.value = err.code
             throw error.value;
         }

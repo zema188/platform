@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import SigupView from '@/views/SigupView.vue'
+import ScheduleView from '@/views/ScheduleView.vue'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,12 +18,26 @@ const router = createRouter({
     {
       path: '/login',
       name: 'Login',
-      component: LoginView
+      component: LoginView,
+      meta: {
+        requiresUnAuth: true
+      }
     },
     {
       path: '/signup',
       name: 'Signup',
-      component: SigupView
+      component: SigupView,
+      meta: {
+        requiresUnAuth: true
+      }
+    },
+    {
+      path: '/schedule',
+      name: 'Schedule',
+      component: ScheduleView,
+      meta: {
+        requiresAuth: true
+      }
     },
   ]
 })
@@ -46,6 +61,13 @@ router.beforeEach(async (to, from, next) => {
       next()
     } else {
       next('/login')
+    }
+  } 
+  if (to.matched.some((record) => record.meta.requiresUnAuth)) {
+    if(await getCurrentUser()) {
+      next('/')
+    } else {
+      next()
     }
   } else {
     next()

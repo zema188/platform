@@ -9,13 +9,13 @@ import { RouterLink } from 'vue-router'
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js'
 
-let login = ref('test@gmail.com')
+let login = ref('artem@gmail.com')
 let password = ref('123123')
-
+let firstName = ref('Артем')
 
 const authStore = useAuthStore()
 const signUp = async () => {
-    await authStore.signUp(login.value, password.value)
+    await authStore.signUp(login.value, password.value, firstName.value)
 }
 </script>
 
@@ -37,7 +37,7 @@ const signUp = async () => {
         </span>
         <TheInput class=""
             :modelValue="login"    
-            :placeHolder="'Логин'"
+            :placeHolder="'e-mail'"
             v-model="login"
             @update:modelValue="(newValue) => {(login=newValue)}"
         />
@@ -49,6 +49,15 @@ const signUp = async () => {
             :placeHolder="'Пароль'"
             v-model="password"
             @update:modelValue="(newValue) => {(password=newValue)}"
+        />
+        <span class="subtitle">
+            Ваше имя
+        </span>
+        <TheInput
+            :modelValue="firstName"    
+            :placeHolder="'Имя'"
+            v-model="firstName"
+            @update:modelValue="(newValue) => {(firstName=newValue)}"
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"
