@@ -1,62 +1,63 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { useUser } from './user'
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { useRouter } from 'vue-router'
 
-
-const apiKey = import.meta.env.API_KEY_FIREBASE
+// const apiKey = import.meta.env.API_KEY_FIREBASE;
+// const apiKey = 'AIzaSyDHVm4_wl2OyrXes6S2O33RturQ1boQDLI'
 
 export const useAuthStore = defineStore('auth', () => {
-    const userInfo = ref({
-        token: '',
-        email: '',
-        userId: '',
-        refreshToken: '',
-        expiresIn: ''
-    });
-    
+    const router = useRouter()
+    const user = useUser()
     const error = ref('');
     const loader = ref(false);
-
-
-    const auth = async (payload, type) => {
+    const auth = getAuth()
+    const signUp = async (email, password) => {
         try {
             error.value = ''
             loader.value = !loader.value
-            let response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:${type}?key=${apiKey}`, {
-                ...payload,
-                returnSecureToken: true
-            });
-            console.log(response.data);
-            userInfo.value = {
-                token: response.data.idToken,
-                email: response.data.email,
-                userId: response.data.localId,
-                refreshToken: response.data.refreshToken,
-                expiresIn: response.data.expiresIn
-            }
+            let response = await createUserWithEmailAndPassword(getAuth(), email, password)
+            router.push('/login')
         } catch(err) {
-            switch (err.response.data.error.message) {
-                case 'EMAIL_EXISTS':
-                    error.value = 'Email exists'
-                    break;
-                case 'OPERATION_NOT_ALLOWED':
-                    error.value = 'Operation not allowed'
-                    break;
-                case 'EMAIL_NOT_FOUND':
-                    error.value = 'Email not found'
-                    break;
-                case 'INVALID_PASSWORD':
-                    error.value = 'Invalid password'
-                    break;
-                default:
-                    error.value = 'Error'
-                    break;
-            }
+            console.log('test',err)
+            error.value = err.code
+            throw error.value;
         } finally {
             loader.value = !loader.value
         }
     }
-    return { auth,error,loader }
+    const signIn = async (email, password) => {
+        try {
+            error.value = ''
+            loader.value = !loader.value
+            let response = await signInWithEmailAndPassword(auth, email, password)
+            user.userInfo = {
+                email: response.user.email,
+                userId: response.user.uid,
+            }
+            user.userIsLoggedIn = true
+            router.push('/')
+        } catch(err) {
+            console.log('test',err)
+            error.value = err.code
+            throw error.value;
+        } finally {
+            loader.value = !loader.value
+        }
+    }
+    const signOutUser = async () => {
+        try {
+            let response = await signOut(auth)
+            user.userIsLoggedIn = false
+            router.push('/login')
+        } catch(err) {
+            console.log('test',err)
+            error.value = err.code
+            throw error.value;
+        }
+    }
+    return { signUp, signIn, signOutUser, error, loader, }
 })
 
 

@@ -4,22 +4,16 @@ import TheButton from './UI/TheButton.vue';
 import CloseCross from './UI/CloseCross.vue';
 import TheLoader from './UI/TheLoader.vue'
 
-import { useRouter, RouterLink } from 'vue-router'
-
+import { RouterLink } from 'vue-router'
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js'
 
 const authStore = useAuthStore()
-const router = useRouter()
 const signIn = async () => {
-    await authStore.auth({email: login.value, password: password.value}, 'signInWithPassword')
-    if(!authStore.error) {
-        router.push('/home')
-    }
+    await authStore.signIn(login.value, password.value)
 }
-
 let login = ref('test@gmail.com')
-let password = ref('1231231')
+let password = ref('123123')
 
 </script>
 

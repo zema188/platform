@@ -1,9 +1,9 @@
-import './assets/style/reset.css'
-import './assets/style/global.scss'
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { initializeApp } from "firebase/app";
+
+import './assets/style/reset.css'
+import './assets/style/global.scss'
 
 import App from './App.vue'
 import router from './router'
@@ -28,3 +28,5 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+

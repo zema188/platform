@@ -1,5 +1,10 @@
 <script setup>
-
+    const props = defineProps({
+        disabled: {
+            type: Boolean,
+            required: false,
+        }
+    })
 </script>
 
 <template>
@@ -8,7 +13,7 @@
     </button>
 </template>
 
-<style >
+<style lang="scss">
 .button {
     background: #2C64EE;
     display: flex;
@@ -24,5 +29,8 @@
     height: fit-content;
     width: fit-content;
     cursor: pointer;
+    &.disabled {
+        background: #7598f0;
+    }
 }
 </style>

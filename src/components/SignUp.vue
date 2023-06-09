@@ -15,8 +15,7 @@ let password = ref('123123')
 
 const authStore = useAuthStore()
 const signUp = async () => {
-    await authStore.auth({email: login.value, password: password.value}, 'signUp')
-    console.log(authStore.error)
+    await authStore.signUp(login.value, password.value)
 }
 </script>
 
