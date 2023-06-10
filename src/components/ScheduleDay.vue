@@ -2,28 +2,44 @@
     import ScheduleDayList from './ScheduleDayList.vue';
     import { getDatabase, ref as dbRef, onValue } from "firebase/database";
     import { onMounted, ref } from 'vue';
-    const db = getDatabase();
+    import ScheduleDayEditor from './ScheduleDayEditor.vue';
+    import { useUser } from '@/stores/user'
+    import TheLoader from './UI/TheLoader.vue'
+    import axios from 'axios';
 
+    const db = getDatabase();
+    let dateGreg = ref(20)
     let tasksDay = ref([])
-        // {id: 1, title: 'Подъем', description: 'Утренний подъем, завтрак ', time_from: "07:00", time_to: "", date: "09.06.2023"},
-        // {id: 2, title: 'Утрення зарядка', description: 'Dipisicing elit. voluptatum consequatur tempore placeat', time_from: "08:00", time_to: "08:20", date: "09.06.2023"},
-        // {id: 3, title: 'Физкультура', description: 'Сonsequatur tempore placeat', time_from: "09:00", time_to: "10:00", date: "09.06.2023"},
-    // ]
+    const user = useUser()
+    const loader = ref(true)
 
     const getTasksDay = async () => {
-        const starCountRef = dbRef(db, 'users/QjBg9O98TvS49w2HPH95qm4VeSg1/tasks/');
-        onValue(starCountRef, async (snapshot) => {
-            const data = snapshot.val();
-            for(let property of Object.values(data)) {
-                tasksDay.value.push(property)
-            }
-            // tasksDay = {...data}
-            console.log(tasksDay)
+        const uid = user.userInfo.uid
+        const starCountRef = dbRef(db, `users/${uid}/tasks/${new Date().toLocaleDateString('en-CA')}`);
+        try {
+            onValue(starCountRef, async (snapshot) => {
+                tasksDay.value = [];
+                const data = snapshot.val();
+                if (data == null) {
+                    loader.value = false
+                    return;
+                }
+                for (let [key, value] of Object.entries(data)) {
+                    let property = value
+                    property.id = key
+                    tasksDay.value.push(property)
+                }
+                loader.value = false
         });
+        } catch (error) {
+            console.error(error);
+        }
     }
     onMounted(() => {
         getTasksDay()
     })
+
+    let addNewTaskPopupIsActive = ref(false)
 </script>
 
 <template>
@@ -57,7 +73,9 @@
                     </div>
                 </div>
             </div>
-            <div class="schedule-day__add-task">
+            <div class="schedule-day__add-task"
+            @click="addNewTaskPopupIsActive = true"
+            >
                 <svg 
                     fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M30 4H18V18H4V30H18V44H30V30H44V18H30V4Z"
@@ -66,10 +84,25 @@
                 </svg>
             </div>
         </div>
+        <TheLoader
+            class="welcome__loader"
+            v-if="loader"
+        />
+        <div 
+            class=""
+            v-if="!tasksDay.length && !loader"
+        >
+        Записей нет
+        </div>
         <schedule-day-list
-        :tasksDay="tasksDay"
+            :tasksDay="tasksDay"
+        />
+        <ScheduleDayEditor
+            :addNewTaskPopupIsActive="addNewTaskPopupIsActive"
+            @update:isActive="(newValue) => {(addNewTaskPopupIsActive=newValue)}"
         />
     </div>
+
 </template>
 
 
@@ -125,6 +158,7 @@
     }
 
     &__add-task {
+        cursor: pointer;
         flex: 0;
         & svg {
             width: 48px;
