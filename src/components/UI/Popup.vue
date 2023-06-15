@@ -81,13 +81,15 @@ let props = defineProps({
     gap: 10px;
   }
   &__times-col {
-
     flex: 0 0 calc(50% - 5px);
   }
   &__subtitle {
-        text-align: center;
-        margin-bottom: 3px;
-        font-size: 14px;
+    text-align: center;
+    margin-bottom: 3px;
+    font-size: 14px;
+    &_left {
+      text-align: start;
+    }
   }
   &__close {
     position: absolute;

@@ -38,6 +38,7 @@ let password = ref('123123')
             :placeHolder="'Логин'"
             v-model="login"
             @update:modelValue="(newValue) => {(login=newValue)}"
+            @keydown.enter="signIn()"
         />
         <span class="subtitle">
             Ваш пароль
@@ -47,6 +48,7 @@ let password = ref('123123')
             :placeHolder="'Пароль'"
             v-model="password"
             @update:modelValue="(newValue) => {(password=newValue)}"
+            @keydown.enter="signIn()"
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"

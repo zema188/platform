@@ -40,6 +40,7 @@ const signUp = async () => {
             :placeHolder="'e-mail'"
             v-model="login"
             @update:modelValue="(newValue) => {(login=newValue)}"
+            @keydown.enter="signUp()"
         />
         <span class="subtitle">
             Ваш пароль
@@ -49,6 +50,7 @@ const signUp = async () => {
             :placeHolder="'Пароль'"
             v-model="password"
             @update:modelValue="(newValue) => {(password=newValue)}"
+            @keydown.enter="signUp()"
         />
         <span class="subtitle">
             Ваше имя
@@ -58,6 +60,7 @@ const signUp = async () => {
             :placeHolder="'Имя'"
             v-model="firstName"
             @update:modelValue="(newValue) => {(firstName=newValue)}"
+            @keydown.enter="signUp()"
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"

@@ -34,12 +34,14 @@
         width: 100%;
         padding: 10px 15px;
         border-radius: 10px;
+        color: #000;
         &:focus {
             &::placeholder {
                 color: transparent;
             }
         }
         &::placeholder {
+            color: rgba(96, 96, 96, 0.5);
         }
     }
 </style>

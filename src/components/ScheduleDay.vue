@@ -1,6 +1,6 @@
 <script setup>
     import ScheduleDayList from './ScheduleDayList.vue';
-    import { getDatabase, ref as dbRef, onValue } from "firebase/database";
+    import { getDatabase, ref as dbRef, onValue, query, orderByChild, limitToFirst, orderByValue, equalTo, orderByKey } from "firebase/database";
     import { onMounted, ref } from 'vue';
     import ScheduleDayEditor from './ScheduleDayEditor.vue';
     import { useUser } from '@/stores/user'
@@ -8,16 +8,22 @@
     import axios from 'axios';
 
     const db = getDatabase();
-    let dateGreg = ref(20)
-    let tasksDay = ref([])
     const user = useUser()
     const loader = ref(true)
+    const uid = user.userInfo.uid
 
-    const getTasksDay = async () => {
+    let tasksDay = ref([])
+    let currentTask = ref({})
+    let addNewTaskPopupIsActive = ref(false)
+    let editTaskPopupIsActive = ref(false)
+    let currentDateInDayList = ref(new Date())
+
+    const getTasksDay = async (date) => {
+        date = dateToLocal(date)
         const uid = user.userInfo.uid
-        const starCountRef = dbRef(db, `users/${uid}/tasks/${new Date().toLocaleDateString('en-CA')}`);
+        const filterDay = query(dbRef(db, `users/${uid}/tasks`), orderByChild('date'), equalTo(date),);
         try {
-            onValue(starCountRef, async (snapshot) => {
+            onValue(filterDay, async (snapshot) => {
                 tasksDay.value = [];
                 const data = snapshot.val();
                 if (data == null) {
@@ -29,17 +35,95 @@
                     property.id = key
                     tasksDay.value.push(property)
                 }
+                tasksDay.value.sort((a, b) => a.time_from.localeCompare(b.time_from));
                 loader.value = false
+                console.log(snapshot.val())
         });
         } catch (error) {
             console.error(error);
         }
     }
-    onMounted(() => {
-        getTasksDay()
-    })
 
-    let addNewTaskPopupIsActive = ref(false)
+
+    const postTask = async (task) => {
+        try {
+            const uid = user.userInfo.uid
+            let response = await axios.post(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks.json`, {
+                title: task.title,
+                description: task.description,
+                time_from: task.time_from,
+                time_to: task.time_to,
+                date: task.date
+            });
+            console.log(response)
+        } catch(err) {
+            console.error(err)
+        }
+    }
+
+    const putTask = async(task) => {
+        try {
+            const uid = user.userInfo.uid
+            let response = await axios.put(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks/${task.id}.json`, {
+                title: task.title,
+                description: task.description,
+                time_from: task.time_from,
+                time_to: task.time_to,
+                date: task.date
+            });
+            console.log(response)
+        } catch(err) {
+            console.error(err)
+        }
+    }
+
+    const deleteTask = async (taskId) => {
+        try {
+            let response = await axios.delete(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks/${taskId}.json`, {
+                
+            })
+            console.log(response)
+        } catch(err) {
+            console.error(err)
+        }
+    }
+
+
+    const editingTask = (task) => {
+        currentTask.value = task
+        editTaskPopupIsActive.value = true
+    }
+
+    const dateToLocal = (date) => {
+        if(typeof(date) == 'object')
+        return date.toLocaleDateString('en-CA')
+
+        if(typeof(date) == 'number') {
+            const newDate = new Date(date);
+            const year = newDate.getFullYear();
+            const month = ('0' + (newDate.getMonth() + 1)).slice(-2);
+            const day = ('0' + newDate.getDate()).slice(-2);
+
+            const formattedDate = `${year}-${month}-${day}`;
+            return formattedDate
+        }
+    }
+
+    // Форматирует переданное время в формат "чч:00"
+    const formatTime = (date) => {
+        const hours = date.getHours().toString().padStart(2, "0");
+        return `${hours}:00`;
+    }
+
+    // Добавляет указанное количество часов к переданному времени
+    const addHours = (date, hours) => {
+        const newDate = new Date(date.getTime());
+        newDate.setHours(newDate.getHours() + hours);
+        return newDate;
+    }
+    onMounted(() => {
+        getTasksDay(currentDateInDayList.value)
+    })
 </script>
 
 <template>
@@ -50,10 +134,12 @@
                     Расписание на сегодня
                 </div>
                 <div class="schedule-day__date">
-                    Пятница 9
+                    {{ `${currentDateInDayList.toLocaleDateString('ru-RU', { weekday: 'long' })} ${currentDateInDayList.getDate()}` }}
                 </div>
                 <div class="schedule-day__arrows">
-                    <div class="schedule-day__arrow schedule-day__arrow-prev">
+                    <div class="schedule-day__arrow schedule-day__arrow-prev"
+                    @click="getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() - 1)))"
+                    >
                         <svg
                             version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000">
                                 <polygon style="fill:#93D16B;" points="502.312,256.169 317.965,99.457 306.222,176.41 48.439,176.41 9.688,335.929 281.878,335.929 270.185,412.541 ">
@@ -62,7 +148,9 @@
                                 </path>
                         </svg>
                     </div>
-                    <div class="schedule-day__arrow schedule-day__arrow-next">
+                    <div class="schedule-day__arrow schedule-day__arrow-next"
+                    @click="getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() + 1)))"
+                    >
                         <svg
                             version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000">
                                 <polygon style="fill:#93D16B;" points="502.312,256.169 317.965,99.457 306.222,176.41 48.439,176.41 9.688,335.929 281.878,335.929 270.185,412.541 ">
@@ -96,11 +184,40 @@
         </div>
         <schedule-day-list
             :tasksDay="tasksDay"
+            @deleteTask="(taskId) => deleteTask(taskId)"
+            @editTask="(task) => editingTask(task)"
         />
         <ScheduleDayEditor
-            :addNewTaskPopupIsActive="addNewTaskPopupIsActive"
+            :editTaskPopupIsActive="addNewTaskPopupIsActive"
+            :currentTask="{
+                date: currentDateInDayList.toLocaleDateString('en-CA'),
+                time_from: formatTime(new Date()),
+            }"
+            :editType="'post'"
             @update:isActive="(newValue) => {(addNewTaskPopupIsActive=newValue)}"
-        />
+            @postRequest="(task) => {postTask(task)}"
+        >
+            <template v-slot:title>
+                Создание заметки
+            </template>
+            <template v-slot:btnText>
+                Создать
+            </template>
+        </ScheduleDayEditor>
+        <ScheduleDayEditor
+            :editTaskPopupIsActive="editTaskPopupIsActive"
+            :currentTask="currentTask"
+            :editType="'put'"
+            @update:isActive="(newValue) => {(editTaskPopupIsActive=newValue)}"
+            @putRequest="(task) => {putTask(task)}"
+        >
+            <template v-slot:title>
+                Редактирование заметки
+            </template>
+            <template v-slot:btnText>
+                Сохранить
+            </template>
+        </ScheduleDayEditor>
     </div>
 
 </template>
@@ -131,7 +248,8 @@
 
     &__date {
         font-size: 25px;
-        color: #2C64EE;
+        color: #782cee;
+        width: 200px;
     }
 
     &__arrows {
