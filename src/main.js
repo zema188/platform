@@ -1,6 +1,10 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { initializeApp } from "firebase/app";
+import { firebaseApp } from '@/firebase/config.js'
+
+// import { library } from '@fortawesome/fontawesome-svg-core';
+// import { fas } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import './assets/style/reset.css'
 import './assets/style/global.scss'
@@ -8,22 +12,12 @@ import './assets/style/global.scss'
 import App from './App.vue'
 import router from './router'
 
+// Добавление иконок в библиотеку
+// library.add(fas);
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDHVm4_wl2OyrXes6S2O33RturQ1boQDLI",
-    authDomain: "platform-89f1c.firebaseapp.com",
-    projectId: "platform-89f1c",
-    storageBucket: "platform-89f1c.appspot.com",
-    messagingSenderId: "234494138620",
-    appId: "1:234494138620:web:08d831994e1d9770dfdf79",
-  };
-
-
-initializeApp(firebaseConfig);
 
 const app = createApp(App)
-
+app.use(firebaseApp)
 app.use(createPinia())
 app.use(router)
-
 app.mount('#app')

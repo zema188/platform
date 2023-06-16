@@ -1,13 +1,13 @@
 <script setup>
     import ScheduleDayList from './ScheduleDayList.vue';
-    import { getDatabase, ref as dbRef, onValue, query, orderByChild, limitToFirst, orderByValue, equalTo, orderByKey } from "firebase/database";
+    import { ref as dbRef, onValue, query, orderByChild, limitToFirst, orderByValue, equalTo, orderByKey } from "firebase/database";
     import { onMounted, ref } from 'vue';
     import ScheduleDayEditor from './ScheduleDayEditor.vue';
     import { useUser } from '@/stores/user'
     import TheLoader from './UI/TheLoader.vue'
     import axios from 'axios';
+    import { db } from '@/firebase/config.js'
 
-    const db = getDatabase();
     const user = useUser()
     const loader = ref(true)
     const uid = user.userInfo.uid
@@ -19,6 +19,10 @@
     let currentDateInDayList = ref(new Date())
 
     const getTasksDay = async (date) => {
+
+
+
+
         date = dateToLocal(date)
         const uid = user.userInfo.uid
         const filterDay = query(dbRef(db, `users/${uid}/tasks`), orderByChild('date'), equalTo(date),);
@@ -130,7 +134,8 @@
     <div class="schedule-day">
         <div class="schedule-day__header">
             <div class="schedule-day__header-info">
-                <div class="schedule-day__title">
+                <div class="schedule-day__title"
+                >
                     Расписание на сегодня
                 </div>
                 <div class="schedule-day__date">
@@ -219,7 +224,11 @@
             </template>
         </ScheduleDayEditor>
     </div>
-
+    <!-- <div class="icon"
+    v-for="(icon, index) in icons" :key="icon"
+    >
+      <font-awesome-icon :icon="['fas', icon]" />
+    </div> -->
 </template>
 
 

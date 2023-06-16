@@ -1,10 +1,7 @@
 <script setup>
-    import jQuery from "jquery";
     import { onMounted, ref } from "vue"
     import CloseCross from "./UI/CloseCross.vue";
     import EditIcon from "./UI/EditIcon.vue";
-    const $ = jQuery;
-    window.$ = $;
 
     const props = defineProps({
         task: {
@@ -45,9 +42,10 @@
 <template>
     <div 
     :class="['schedule-day__item', { 'timeOut': checkForTimeOut() }]"
-    @click="contentIsHidden = !contentIsHidden"
+    @click="() => {if(task.description) contentIsHidden = !contentIsHidden}"
     >
         <div class="schedule-day__item-header">
+            <i class="fa-thin fa-face-awesome"></i>
             <div class="schedule-day__item-title">
                 {{ task.title }}
             </div>
@@ -117,6 +115,10 @@
         padding: 0 0 10px;
         position: relative;
         gap: 5px;
+        & img {
+            width: 40px;
+            height: 40px;
+        }
     }
 
     &__item-title {
