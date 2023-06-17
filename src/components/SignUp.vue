@@ -9,7 +9,7 @@ import { RouterLink } from 'vue-router'
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js'
 
-let login = ref('artem@gmail.com')
+let login = ref('artem.zimin02@gmail.com')
 let password = ref('123123')
 let firstName = ref('Артем')
 

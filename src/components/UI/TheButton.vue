@@ -8,7 +8,10 @@
 </script>
 
 <template>
-    <button class="button">
+    <button 
+    :disabled="disabled"
+    class="button"
+    >
         <slot></slot>
     </button>
 </template>
@@ -29,8 +32,9 @@
     height: fit-content;
     width: fit-content;
     cursor: pointer;
-    &.disabled {
-        background: #7598f0;
+    &[disabled] {
+        cursor: default;
+        background: #c4cbdd;
     }
 }
 </style>

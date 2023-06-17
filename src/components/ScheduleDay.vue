@@ -1,81 +1,72 @@
 <script setup>
     import ScheduleDayList from './ScheduleDayList.vue';
-    import { ref as dbRef, onValue, query, orderByChild, limitToFirst, orderByValue, equalTo, orderByKey } from "firebase/database";
     import { onMounted, ref } from 'vue';
     import ScheduleDayEditor from './ScheduleDayEditor.vue';
     import { useUser } from '@/stores/user'
     import TheLoader from './UI/TheLoader.vue'
-    import axios from 'axios';
     import { db } from '@/firebase/config.js'
+    import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
     const user = useUser()
     const loader = ref(true)
-    const uid = user.userInfo.uid
+    const uid = user.userInfo.user_id
 
     let tasksDay = ref([])
     let currentTask = ref({})
     let addNewTaskPopupIsActive = ref(false)
     let editTaskPopupIsActive = ref(false)
     let currentDateInDayList = ref(new Date())
-
-    const getTasksDay = async (date) => {
-
-
-
-
-        date = dateToLocal(date)
-        const uid = user.userInfo.uid
-        const filterDay = query(dbRef(db, `users/${uid}/tasks`), orderByChild('date'), equalTo(date),);
+    
+    const getTasksDay = (date) => {
+        tasksDay.value = [];
         try {
-            onValue(filterDay, async (snapshot) => {
-                tasksDay.value = [];
-                const data = snapshot.val();
-                if (data == null) {
-                    loader.value = false
-                    return;
-                }
-                for (let [key, value] of Object.entries(data)) {
-                    let property = value
-                    property.id = key
-                    tasksDay.value.push(property)
-                }
-                tasksDay.value.sort((a, b) => a.time_from.localeCompare(b.time_from));
-                loader.value = false
-                console.log(snapshot.val())
-        });
-        } catch (error) {
-            console.error(error);
-        }
-    }
+            date = dateToLocal(date);
+            const q = query(collection(db, "tasks"), where("user_id", "==", uid), where("date", "==", date));
 
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+            tasksDay.value = [];
+
+            snapshot.forEach((doc) => {
+                let property = doc.data();
+                property.id = doc.id;
+                tasksDay.value.push(property);
+            });
+
+            if (!tasksDay.value.length) {
+                loader.value = false;
+                return;
+            }
+
+            tasksDay.value.sort((a, b) => a.time_from.localeCompare(b.time_from));
+            loader.value = false;
+            });
+
+            return unsubscribe;
+        } catch (err) {
+            console.error("error get", err);
+        }
+    };
 
     const postTask = async (task) => {
         try {
-            const uid = user.userInfo.uid
-            let response = await axios.post(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks.json`, {
-                title: task.title,
-                description: task.description,
-                time_from: task.time_from,
-                time_to: task.time_to,
-                date: task.date
+            const tasksCollectionRef = collection(db, "tasks");
+            const response = await addDoc(tasksCollectionRef,{
+                ...task,
+                user_id: uid
             });
-            console.log(response)
-        } catch(err) {
-            console.error(err)
+            console.log("New task document ID:", response.id);
+        } catch (error) {
+            console.error("Error posting task: ", error);
         }
-    }
+    };
 
     const putTask = async(task) => {
         try {
-            const uid = user.userInfo.uid
-            let response = await axios.put(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks/${task.id}.json`, {
-                title: task.title,
-                description: task.description,
-                time_from: task.time_from,
-                time_to: task.time_to,
-                date: task.date
+            const docRef = doc(collection(db, "tasks"), task.id);
+
+            await updateDoc(docRef, {
+                ...task,
             });
-            console.log(response)
         } catch(err) {
             console.error(err)
         }
@@ -83,12 +74,9 @@
 
     const deleteTask = async (taskId) => {
         try {
-            let response = await axios.delete(`https://platform-89f1c-default-rtdb.firebaseio.com/users/${uid}/tasks/${taskId}.json`, {
-                
-            })
-            console.log(response)
-        } catch(err) {
-            console.error(err)
+            await deleteDoc(doc(db, "tasks", taskId));
+        } catch (err) {
+            console.error("error delete task", err);
         }
     }
 
@@ -136,7 +124,7 @@
             <div class="schedule-day__header-info">
                 <div class="schedule-day__title"
                 >
-                    Расписание на сегодня
+                    Расписание
                 </div>
                 <div class="schedule-day__date">
                     {{ `${currentDateInDayList.toLocaleDateString('ru-RU', { weekday: 'long' })} ${currentDateInDayList.getDate()}` }}
@@ -253,6 +241,7 @@
     &__title {
         font-size: 35px;
         flex: 0 0 100%;
+        line-height: 39px;
     }
 
     &__date {

@@ -1,13 +1,13 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import TheButton from '../UI/TheButton.vue';
 import { useAuthStore } from '@/stores/auth.js'
 import { useUser } from '@/stores/user';
-
+import ProfilePic from './ProfilePic.vue';
+import { ref } from 'vue';
 
 const user = useUser()
-
 const authStore = useAuthStore()
+const profileHeaderIsActive = ref('false')
 
 const signOut = () => {
     authStore.signOutUser()
@@ -16,7 +16,7 @@ const signOut = () => {
 
 <template>
     <div class="header-w">
-        <header class="">
+        <header class="header">
             <router-link
                 :class="'logo'"
                 to="/">
@@ -36,22 +36,55 @@ const signOut = () => {
                     Игры
                 </router-link>
             </nav>
-            <the-button
-            :disabled="true"
-            @click="signOut"
-            >
-                Выйти
-            </the-button>
+            <div class="header__profile">
+                <div class="header__profile-pic profile-pic"
+                    @click="profileHeaderIsActive = !profileHeaderIsActive"
+                    >
+                    <profile-pic/>
+                    {{ user.userInfo.first_name }}
+                </div>
+                <div 
+                    :class="['header__profile-action', 'block', {'active': !profileHeaderIsActive}]"
+                >
+                <router-link
+                    :class="['header__profile-link']"
+                    to="/profile">
+                    <font-awesome-icon :icon="['fasl', 'gear']" />
+                    Настройки
+                </router-link>
+                <router-link
+                    :class="['header__profile-link']"
+                    disabled="disabled"
+                    aria-disabled="true"
+                    to="/profile">
+                    <font-awesome-icon :icon="['fas', 'palette']" />
+                    Тема
+                </router-link>
+                <div
+                    :class="['header__profile-link']"
+                    :disabled="true"
+                    @click="signOut"
+                    >
+                    <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" />
+                    Выйти
+                </div>
+                </div>
+            </div>
         </header>
     </div>
 </template>
 
 <style lang="scss">
     .header-w {
-        border-bottom: 1px solid #969696;
         margin-bottom: 30px;
+        background: var(--var-header-bg);
+        box-shadow: 0 4px 4px rgba(41,41,41,.08);
+        backdrop-filter: blur(2px);
+        z-index: 5;
+        position: sticky;
+        top: 0;
     }
-    header {
+    .header {
         padding: 20px 15px 20px;
         max-width: 1430px;
         margin: 0 auto;
@@ -59,6 +92,35 @@ const signOut = () => {
         justify-content: space-between;
         align-items: center;
         gap: 15px;
+        &__profile-link {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+            cursor: pointer;
+            &:not(:last-child) {
+                margin-bottom: 10px;
+            }
+        }
+        &__profile {
+            position: relative;
+        }
+        &__profile-pic {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+            font-weight: 500;
+            align-items: center;
+        }
+        &__profile-action {
+            position: absolute;
+            display: none;
+            right: 0;
+            top: 100%;
+            &.active {
+                display: block;
+            }
+        }
     }
     .logo {
         font-family: "Rubik";

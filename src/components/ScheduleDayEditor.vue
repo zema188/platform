@@ -28,6 +28,7 @@
     let task = ref({})
 
     watch(() => props.editTaskPopupIsActive, () => {
+        task.value = {}
         task.value = {...props.currentTask}
     });
 </script>
@@ -68,7 +69,7 @@
                 type="time"
                 :modelValue="task.time_from"    
                 v-model="task.time_from"
-                @update:modelValue="(newValue) => {(task.from=newValue)}"
+                @update:modelValue="(newValue) => {(task.time_from=newValue)}"
             />
         </div>
         <div class="popup__times-col">
@@ -79,7 +80,7 @@
                 type="time"
                 :modelValue="task.time_to"    
                 v-model="task.time_to"
-                @update:modelValue="(newValue) => {(task.to=newValue)}"
+                @update:modelValue="(newValue) => {(task.time_to=newValue)}"
             />
         </div>
     </div>

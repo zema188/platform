@@ -4,6 +4,8 @@ import { useUser } from './user'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRouter } from 'vue-router'
 import { getDatabase, ref as dbRef, set } from "firebase/database";
+import { collection, where, query, setDoc, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { db } from '@/firebase/config.js'
 
 
 // const apiKey = import.meta.env.API_KEY_FIREBASE;
@@ -15,20 +17,25 @@ export const useAuthStore = defineStore('auth', () => {
     const error = ref('');
     const loader = ref(false);
     const auth = getAuth()
-    const db = getDatabase();
     const signUp = async (email, password, firstName) => {
         try {
             error.value = ''
             loader.value = !loader.value
             let response = await createUserWithEmailAndPassword(getAuth(), email, password)
-            const uid = response.user.uid
-            await set(dbRef(db, 'users/' + uid + '/info'), {
-              username: firstName,
+            console.log(response)
+            const docRef = doc(db, 'users', response.user.uid); // Создание ссылки на документ с использованием идентификатора пользователя
+            await setDoc(docRef, {
+                user_id: response.user.uid,
+                email: email,
+                first_name: firstName,
+                createdAt: response.user.metadata.creationTime,
+                emailVerified: false,
             });
+            user.userIsLoggedIn = true
             router.push('/login')
         } catch(err) {
             console.error(err)
-            error.value = err.code
+            error.value = err.code  
             throw error.value;
         } finally {
             loader.value = !loader.value
@@ -39,12 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
             error.value = ''
             loader.value = !loader.value
             let response = await signInWithEmailAndPassword(auth, email, password)
-            user.userInfo = {
-                email: response.user.email,
-                uid: response.user.uid,
-            }
             user.userIsLoggedIn = true
-
             router.push('/')
         } catch(err) {
             console.error(err)
