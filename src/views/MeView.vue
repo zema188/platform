@@ -5,12 +5,14 @@ import TheInput from '../components/UI/TheInput.vue'
 import { useUser } from '@/stores/user';
 import { watch , ref } from 'vue';
 import { storage, db } from '@/firebase/config.js'
-import { ref as  frRef, uploadBytes, getDownloadURL} from "firebase/storage";
-import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { ref as  frRef, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage";
+import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc, } from "firebase/firestore";
+import ConfirmationActions from '@/components/ConfirmationActions.vue';
 
 const user = useUser()
 const changeDateBtn = ref(true)
-const uploadAvatarBtn = ref(true)
+const uploadAvatarBtnisDisabled = ref(true)
+const confirmationDeleteAvatar = ref(false)
 
 
 const convertTime = (seconds) => {
@@ -48,7 +50,6 @@ let profileAvatar = ref()
 const upLoadProfilePic = async () => {
     const storageRef = frRef(storage, `images/avatars-profile/avatar-${user.userInfo.user_id}`);
     const docRef = doc(db, 'users', user.userInfo.user_id); // Создание ссылки на документ с использованием идентификатора пользователя
-    console.log('test')
     try {
         return uploadBytes(storageRef, profileAvatar.value)
         .then((snapshot) => {
@@ -58,20 +59,61 @@ const upLoadProfilePic = async () => {
             return getDownloadURL(uploadTask.ref)
         })
         .then((url) => {
-            console.log('url2', url)
             updateDoc(docRef, {
                 profile_avatar: url
             });
+        })
+        .then(() => {
+            uploadAvatarBtnisDisabled.value = true
         })
     } catch(err) {
         console.error(err)
     }
 }
+const deleteAvatarProfile = async(confirm) => {
+    if(!confirm) {
+        confirmationDeleteAvatar.value = false
+        return
+    }
+    const docImage = frRef(storage, `images/avatars-profile/avatar-${user.userInfo.user_id}`); // Создание ссылки на документ с использованием идентификатора пользователя
+    const docUser = doc(db, 'users', user.userInfo.user_id); // Создание ссылки на документ с использованием идентификатора пользователя
+    try {
+        return deleteObject(docImage)
+        .then(() => {
+            updateDoc(docUser, {
+                profile_avatar: 'default'
+            });
+        })
+        .then(() => {
+            confirmationDeleteAvatar.value = false
+        })
+    } catch(err) {
+        console.error(err)
+    }
+} 
 
 </script>
 
 <template>
     <div class="container me">
+        <confirmation-actions
+            :isActive="confirmationDeleteAvatar"
+            @update:isActive="(newValue) => {(confirmationDeleteAvatar=newValue)}"
+            @answer="(answer) => deleteAvatarProfile(answer)"
+        >
+            <template v-slot:text>
+                Вы действительно хотите 
+                <span>
+                    удалить фотографию?
+                </span>
+            </template>
+            <template v-slot:btnYes>
+                Да, удалить
+            </template>
+            <template v-slot:btnNo>
+                Отмена
+            </template>
+        </confirmation-actions>
         <div class="me__preview block">
             <div class="me__preview-name me__subtitle">
                 {{ user.userInfo.first_name }}
@@ -85,14 +127,20 @@ const upLoadProfilePic = async () => {
                         <font-awesome-icon :icon="['fasl', 'pen']" style="color: rgb(144 157 223);" />
                     </span>
                     <input type="file"
-                        @input="(e) => {profileAvatar = (e.target.files[0]), uploadAvatarBtn = false}"
+                        @input="(e) => {profileAvatar = (e.target.files[0]), uploadAvatarBtnisDisabled = false}"
                     >
                 </label>
-
+                <font-awesome-icon 
+                    v-if="user.userInfo.profile_avatar != 'default'"
+                    :class="'me__delete-avatar'"
+                    :icon="['fass', 'trash'] "
+                    style="color: rgb(209 71 71);"
+                    @click="confirmationDeleteAvatar = !confirmationDeleteAvatar"
+                />
             </div>
             <the-button
                 :class="`me__upload-btn`"
-                :disabled="uploadAvatarBtn"
+                :disabled="uploadAvatarBtnisDisabled"
                 @click="upLoadProfilePic"
             >
                 Загрузить фото
@@ -224,6 +272,7 @@ const upLoadProfilePic = async () => {
         &__edit-content {
             padding-top: 20px;
         }
+
         &__edit-list {
             display: flex;
             flex-wrap: wrap;
@@ -257,6 +306,9 @@ const upLoadProfilePic = async () => {
                 & span {
                     opacity: 1;
                 }
+                & .me__delete-avatar {
+                    opacity: 1;
+                }
             }
             & span {
                 position: absolute;
@@ -275,6 +327,15 @@ const upLoadProfilePic = async () => {
                 height: 200px;
             }
 		}
+        &__delete-avatar {
+            position: absolute;
+            right: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+        }
         &__edit-subtitle {
             margin-bottom: 30px;
         }

@@ -9,7 +9,6 @@ const user = useUser()
 
 let defaultAvatar = ref(false)
 const handleImage = () => {
-    console.log('test',user.userInfo.profile_avatar)
     return(user.userInfo.profile_avatar == 'default')
 }
 

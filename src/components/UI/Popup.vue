@@ -69,7 +69,7 @@ let props = defineProps({
     border-radius: 15px;
     width: 95%;
     max-width: 344px;
-    padding: 5px 12px 22px;
+    padding: 5px 22px 22px;
     z-index: 105;
   }
   &__title {
