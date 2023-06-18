@@ -22,14 +22,14 @@ export const useAuthStore = defineStore('auth', () => {
             error.value = ''
             loader.value = !loader.value
             let response = await createUserWithEmailAndPassword(getAuth(), email, password)
-            console.log(response)
-            const docRef = doc(db, 'users', response.user.uid); // Создание ссылки на документ с использованием идентификатора пользователя
+            const docRef = doc(db, 'users', response.user.uid);
             await setDoc(docRef, {
                 user_id: response.user.uid,
                 email: email,
                 first_name: firstName,
                 createdAt: response.user.metadata.creationTime,
                 emailVerified: false,
+                profile_avatar: 'default',
             });
             user.userIsLoggedIn = true
             router.push('/login')

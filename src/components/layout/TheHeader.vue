@@ -45,10 +45,11 @@ const signOut = () => {
                 </div>
                 <div 
                     :class="['header__profile-action', 'block', {'active': !profileHeaderIsActive}]"
+                    @click="profileHeaderIsActive = !profileHeaderIsActive"
                 >
                 <router-link
                     :class="['header__profile-link']"
-                    to="/profile">
+                    to="/me">
                     <font-awesome-icon :icon="['fasl', 'gear']" />
                     Настройки
                 </router-link>
@@ -56,7 +57,7 @@ const signOut = () => {
                     :class="['header__profile-link']"
                     disabled="disabled"
                     aria-disabled="true"
-                    to="/profile">
+                    to="/me">
                     <font-awesome-icon :icon="['fas', 'palette']" />
                     Тема
                 </router-link>
@@ -111,12 +112,15 @@ const signOut = () => {
             font-size: 15px;
             font-weight: 500;
             align-items: center;
+            width: 50px;
+            height: 50px;
         }
         &__profile-action {
             position: absolute;
             display: none;
             right: 0;
-            top: 100%;
+            top: calc(100% + 20px);
+            background: #fff;
             &.active {
                 display: block;
             }

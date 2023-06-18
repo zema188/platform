@@ -4,11 +4,13 @@ import TheButton from '../components/UI/TheButton.vue';
 import TheInput from '../components/UI/TheInput.vue'
 import { useUser } from '@/stores/user';
 import { watch , ref } from 'vue';
-import { db } from '@/firebase/config.js'
+import { storage, db } from '@/firebase/config.js'
+import { ref as  frRef, uploadBytes, getDownloadURL} from "firebase/storage";
 import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
 const user = useUser()
 const changeDateBtn = ref(true)
+const uploadAvatarBtn = ref(true)
 
 
 const convertTime = (seconds) => {
@@ -29,86 +31,112 @@ const oldUserInfo = ref({
     last_name: user.userInfo.last_name,
 })
 const setNewUserInfo = async (info) => {
-    console.log(info)
         try {
             const docRef = doc(db, 'users', user.userInfo.user_id); // Создание ссылки на документ с использованием идентификатора пользователя
 
             await updateDoc(docRef, {
-                ...info,
+                first_name: user.userInfo.first_name,
+                last_name: user.userInfo.last_name
             });
             changeDateBtn.value = true
         } catch(err) {
             console.error(err)
         }
 }
-watch(() => user.userInfo, () => {
-    console.log('test',user.userInfo)
-    oldUserInfo.value = {}
-    oldUserInfo.value = {
-        first_name: user.userInfo.first_name,
-        last_name: user.userInfo.last_name,
+
+let profileAvatar = ref()
+const upLoadProfilePic = async () => {
+    const storageRef = frRef(storage, `images/avatars-profile/avatar-${user.userInfo.user_id}`);
+    const docRef = doc(db, 'users', user.userInfo.user_id); // Создание ссылки на документ с использованием идентификатора пользователя
+    console.log('test')
+    try {
+        return uploadBytes(storageRef, profileAvatar.value)
+        .then((snapshot) => {
+            return snapshot
+        })
+        .then((uploadTask) => {
+            return getDownloadURL(uploadTask.ref)
+        })
+        .then((url) => {
+            console.log('url2', url)
+            updateDoc(docRef, {
+                profile_avatar: url
+            });
+        })
+    } catch(err) {
+        console.error(err)
     }
-})
+}
+
 </script>
 
 <template>
-    <div class="container profile">
-        <div class="profile__preview block">
-            <div class="profile__preview-name profile__subtitle">
-                {{ user.userInfo.first_name + ' ' }}
-                <span v-if="user.userInfo.last_name !== undefined">
-                    {{ ' ' + user.userInfo.last_name }}
-                </span>
+    <div class="container me">
+        <div class="me__preview block">
+            <div class="me__preview-name me__subtitle">
+                {{ user.userInfo.first_name }}
+                {{ user.userInfo.last_name }}
             </div>
-            <div class="profile__preview-avatar">
+            <div class="me__preview-avatar"
+            >
                 <profile-pic/>
+                <label class="me__add-avatar">
+                    <span>
+                        <font-awesome-icon :icon="['fasl', 'pen']" style="color: rgb(144 157 223);" />
+                    </span>
+                    <input type="file"
+                        @input="(e) => {profileAvatar = (e.target.files[0]), uploadAvatarBtn = false}"
+                    >
+                </label>
+
             </div>
-            <label class="profile__add-avatar">
-                <input type="file">
-                <span class="button auth-btn">
-                    Загрузить фото
-                </span>
-            </label>
-            <div class="profile__date-since">
+            <the-button
+                :class="`me__upload-btn`"
+                :disabled="uploadAvatarBtn"
+                @click="upLoadProfilePic"
+            >
+                Загрузить фото
+            </the-button>
+            <div class="me__date-since">
                 Вступил <span>{{ convertTime(user.userInfo.createdAt) }}</span>
             </div>
         </div>
-        <div class="profile__edit block">
-            <div class="profile__edit-top">
-                <div class="profile__subtitle profile__edit-subtitle">
+        <div class="me__edit block">
+            <div class="me__edit-top">
+                <div class="me__subtitle me__edit-subtitle">
                     Настройки профиля
                 </div>
-                <div class="profile__edit-nav">
-                    <div class="profile__edit-nav-item active">
+                <div class="me__edit-nav">
+                    <div class="me__edit-nav-item active">
                         Данные профиля
                     </div>
                 </div>
             </div>
-            <div class="profile__edit-content">
-                <div class="profile__edit-list">
-                    <div class="profile__edit-item">
+            <div class="me__edit-content">
+                <div class="me__edit-list">
+                    <div class="me__edit-item">
                         <span class="subtitle">
                             Имя
                         </span>
                         <TheInput
-                            :modelValue="oldUserInfo.first_name"   
-                            :value="oldUserInfo.first_name"
+                            :modelValue="user.userInfo.first_name"   
+                            :value="user.userInfo.first_name"
                             :placeHolder="'Имя'"
-                            v-model="oldUserInfo.first_name"
-                            @update:modelValue="(newValue) => {(oldUserInfo.first_name=newValue)}"
+                            v-model="user.userInfo.first_name"
+                            @update:modelValue="(newValue) => {(user.userInfo.first_name=newValue)}"
                             @input="changeDateBtn = false"
                             />
                     </div>
-                    <div class="profile__edit-item">
+                    <div class="me__edit-item">
                         <span class="subtitle">
                             Фамилия
                         </span>
                         <TheInput
-                            :modelValue="oldUserInfo.last_name"   
-                            :value="oldUserInfo.last_name"
+                            :modelValue="user.userInfo.last_name"   
+                            :value="user.userInfo.last_name"
                             :placeHolder="'Фамилия'"
-                            v-model="oldUserInfo.last_name"
-                            @update:modelValue="(newValue) => {(oldUserInfo.last_name=newValue)}"
+                            v-model="user.userInfo.last_name"
+                            @update:modelValue="(newValue) => {(user.userInfo.last_name=newValue)}"
                             @input="changeDateBtn = false"
                         />
                     </div>
@@ -175,7 +203,7 @@ watch(() => user.userInfo, () => {
 
 
 <style lang="scss" scoped>
-.profile {
+.me {
     display: flex;
     gap: 20px;
 		&__preview {
@@ -184,7 +212,11 @@ watch(() => user.userInfo, () => {
             flex-direction: column;
             align-items: center;
             padding: 40px;
+            max-width: 350px;
 		}
+        &__upload-btn {
+            margin-top: 20px;
+        }
         &__edit {
             flex: 1;
             padding: 40px;
@@ -216,11 +248,31 @@ watch(() => user.userInfo, () => {
         }
 		&__preview-name {
             text-align: center;
+            white-space: wrap;
 		}
 
 		&__preview-avatar {
+            position: relative;
+            &:hover {
+                & span {
+                    opacity: 1;
+                }
+            }
+            & span {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                opacity: 0;
+                transition: .2s;
+                cursor: pointer;
+                & svg {
+                    width: 35px;
+                    height: 35px;
+                }
+            }
             & img {
                 width: 200px;
+                height: 200px;
             }
 		}
         &__edit-subtitle {
