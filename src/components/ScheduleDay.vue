@@ -2,6 +2,7 @@
     import ScheduleDayList from './ScheduleDayList.vue';
     import { onMounted, ref } from 'vue';
     import ScheduleDayEditor from './ScheduleDayEditor.vue';
+    import ScheduleCopyTasks from './ScheduleCopyTasks.vue';
     import { useUser } from '@/stores/user'
     import TheLoader from './UI/TheLoader.vue'
     import { db } from '@/firebase/config.js'
@@ -15,14 +16,13 @@
     let currentTask = ref({})
     let addNewTaskPopupIsActive = ref(false)
     let editTaskPopupIsActive = ref(false)
+    let copyTasksIsActive = ref(false)
     let currentDateInDayList = ref(new Date())
     
     const getTasksDay = (date) => {
-        tasksDay.value = [];
         try {
             date = dateToLocal(date);
             const q = query(collection(db, "tasks"), where("user_id", "==", uid), where("date", "==", date));
-
             const unsubscribe = onSnapshot(q, (snapshot) => {
             tasksDay.value = [];
 
@@ -154,6 +154,13 @@
                     </div>
                 </div>
             </div>
+            <div class="schedule-day__copy-day"
+                @click="copyTasksIsActive = true"
+            >
+                <font-awesome-icon :icon="['fass', 'file-import']" style="color: rgb(0 64 255);" />
+            </div>
+            <!-- <font-awesome-icon :icon="['fas', 'copy']" />
+            <font-awesome-icon :icon="['fas', 'paste']" /> -->
             <div class="schedule-day__add-task"
             @click="addNewTaskPopupIsActive = true"
             >
@@ -211,6 +218,13 @@
                 Сохранить
             </template>
         </ScheduleDayEditor>
+        <ScheduleCopyTasks
+            :copyTasksPopupIsActive="copyTasksIsActive"
+            :listTasks="tasksDay"
+            :dateStart="currentDateInDayList.toLocaleDateString('en-CA')"
+            @update:isActive="(newValue) => {(copyTasksIsActive=newValue)}"
+        >
+        </ScheduleCopyTasks>
     </div>
     <!-- <div class="icon"
     v-for="(icon, index) in icons" :key="icon"
@@ -279,6 +293,13 @@
         & svg {
             width: 48px;
             height: 48px;
+        }
+    }
+    &__copy-day {
+        cursor: pointer;
+        & svg {
+            width: 50px;
+            height: 50px;
         }
     }
 }

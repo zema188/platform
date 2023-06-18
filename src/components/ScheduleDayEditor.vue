@@ -84,15 +84,19 @@
             />
         </div>
     </div>
-    <div class="popup__subtitle">
-        Дата
+    <div class="popup__date"
+    v-if="editType != 'change'"
+    >
+        <div class="popup__subtitle">
+            Дата
+        </div>
+        <TheInput
+            type="date"
+            :modelValue="task.date"    
+            v-model="task.date"
+            @update:modelValue="(newValue) => {(task.date=newValue)}"
+        />
     </div>
-    <TheInput
-        type="date"
-        :modelValue="task.date"    
-        v-model="task.date"
-        @update:modelValue="(newValue) => {(task.date=newValue)}"
-    />
     <TheButton class="auth-btn"
     @click="editType=='post' ? $emit('postRequest', task) : $emit('putRequest', task)"
     >

@@ -31,7 +31,12 @@
 
         return taskDateTime <= currentDateTime;
     };
-
+    const checkForDisabled = () => {
+        if(props.task.copy === false) {
+            return true
+        }
+        return false
+    }
     onMounted(() => {
         contentIsHidden.value = !checkForTimeOut()
     })
@@ -41,7 +46,7 @@
 
 <template>
     <div 
-    :class="['schedule-day__item', { 'timeOut': checkForTimeOut() }]"
+    :class="['schedule-day__item', { 'timeOut': checkForTimeOut() }, { 'disabled': checkForDisabled() }]"
     @click="() => {if(task.description) contentIsHidden = !contentIsHidden}"
     >
         <div class="schedule-day__item-header">
@@ -74,14 +79,20 @@
         </transition>
         <close-cross
             :class="'schedule-day__item-close'"
-            @click="(e) => {$emit('deleteTask', task.id), e.stopPropagation()}"
+            @click="(e) => {e.stopPropagation(), $emit('deleteTask', task.id)}"
+            
             />
+        <div class="disabled-block"
+        @click="(e) => e.stopPropagation()"
+        >
+        </div>
     </div>
 </template>
 
 
 
 <style lang="scss" >
+
 .schedule-day {
 
     &__item {
@@ -106,6 +117,18 @@
             & .schedule-day__item-date {
                 padding-right: 10px;
             }
+        }
+        & .disabled-block {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(0,0,0, 0.45);
+            opacity: 0;
+            z-index: -1;
         }
     }
 
@@ -180,5 +203,23 @@
 .slide-fade-leave-to {
   transform: translateX(20px);
   opacity: 0;
+}
+.schedule-day__list_copy {
+    & .schedule-day__item {
+        &.disabled {
+            &:hover {
+                & .schedule-day__item-edit {
+                    opacity: 0;
+                }
+                & .schedule-day__item-close {
+                    opacity: 1;
+                    z-index: 3;
+                }
+                & .schedule-day__item-date {
+                    padding-right: 10px;
+                }
+            }
+        }
+    }
 }
 </style>
