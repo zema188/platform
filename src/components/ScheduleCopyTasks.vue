@@ -6,11 +6,12 @@ import ScheduleDayList from './ScheduleDayList.vue';
 import TheInput from '@/components/UI/TheInput.vue';
 import TheButton from './UI/TheButton.vue';
 import ScheduleDayEditor from './ScheduleDayEditor.vue';
+import { db } from '@/firebase/config.js'
+import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc, getDoc, getDocs } from "firebase/firestore";
 
 import { watch , ref } from 'vue';
 import { getDatabase, ref as dbRef, set, push, child } from "firebase/database";
 import { useUser } from '@/stores/user'
-
 
 let props = defineProps({
     copyTasksPopupIsActive: {
@@ -31,6 +32,8 @@ let dateTo = ref('')
 let copyList = ref([])
 let currentEditTask = ref({})
 const editTaskPopupIsActive = ref(false)
+const copyBtnIsDisabled = ref(true)
+
 const deleteTask = (taskId) => {
     const index = copyList.value.findIndex(obj => obj.id == taskId)
     if(!copyList.value[index].copy) {
@@ -39,10 +42,12 @@ const deleteTask = (taskId) => {
     }
     copyList.value[index].copy = false
 }
+
 const editTask = (task) => {
     editTaskPopupIsActive.value = true
     currentEditTask.value = JSON.parse(JSON.stringify(task))
 }
+
 const changeTask = (task) => {
     editTaskPopupIsActive.value = false
     const index = copyList.value.findIndex(obj => obj.id == task.id)
@@ -50,11 +55,39 @@ const changeTask = (task) => {
         ...task
     }
 }
+
+const user = useUser()
+const uid = user.userInfo.user_id
+
+const getTasksByDate = async (date) => {
+    try {
+        const q = query(collection(db, "tasks"), where("user_id", "==", uid), where("date", "==", date));
+        const querySnapshot = await getDocs(q)
+        copyList.value = []
+        querySnapshot.forEach((doc) => {
+            let property = doc.data();
+                property.id = doc.id;
+                copyList.value.push(property);
+        })
+    } catch(err) {
+        console.error(err)
+    }
+}
+const tasksAddNewDate = (date) => {
+    if(!dateFrom.value)
+        return
+    for(let i = 0; i < copyList.value.length; i++) {
+        copyList.value[i].date = date
+    }
+    console.log(copyList.value)
+    copyBtnIsDisabled.value = !dateTo.value
+}
 watch(
   () => props.copyTasksPopupIsActive,
   () => {
-      console.log(props.listTasks)
       dateFrom.value = props.dateStart;
+      dateTo.value = ''
+      copyBtnIsDisabled.value = true
       copyList.value = JSON.parse(JSON.stringify(props.listTasks));
   },
 );
@@ -79,6 +112,7 @@ watch(
                     :modelValue="dateFrom"    
                     v-model="dateFrom"
                     @update:modelValue="(newValue) => {(dateFrom=newValue)}"
+                    @input="(e) => getTasksByDate(e.target.value)"
                 />
             </div>
             <div class="popup__times-col">
@@ -90,6 +124,7 @@ watch(
                     :modelValue="dateTo"    
                     v-model="dateTo"
                     @update:modelValue="(newValue) => {(dateTo=newValue)}"
+                    @input="(e) => tasksAddNewDate(e.target.value)"
                 />
             </div>
         </div>
@@ -100,7 +135,8 @@ watch(
             @editTask="(task) => editTask(task)"
         />
         <TheButton class="auth-btn"
-            @click="editType=='post' ? $emit('postRequest', task) : $emit('putRequest', task)"
+            :disabled="copyBtnIsDisabled"
+            @click="$emit('postCopyTasks', copyList)"
             >
                 Копировать
         </TheButton>

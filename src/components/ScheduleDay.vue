@@ -1,29 +1,31 @@
 <script setup>
-    import ScheduleDayList from './ScheduleDayList.vue';
-    import { onMounted, ref } from 'vue';
-    import ScheduleDayEditor from './ScheduleDayEditor.vue';
-    import ScheduleCopyTasks from './ScheduleCopyTasks.vue';
-    import { useUser } from '@/stores/user'
-    import TheLoader from './UI/TheLoader.vue'
-    import { db } from '@/firebase/config.js'
-    import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import ScheduleDayList from './ScheduleDayList.vue';
+import { onMounted, ref } from 'vue';
+import ScheduleDayEditor from './ScheduleDayEditor.vue';
+import ScheduleCopyTasks from './ScheduleCopyTasks.vue';
+import { useUser } from '@/stores/user'
+import TheLoader from './UI/TheLoader.vue'
+import { db } from '@/firebase/config.js'
+import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
-    const user = useUser()
-    const loader = ref(true)
-    const uid = user.userInfo.user_id
+const user = useUser()
+const loader = ref(true)
+const uid = user.userInfo.user_id
 
-    let tasksDay = ref([])
-    let currentTask = ref({})
-    let addNewTaskPopupIsActive = ref(false)
-    let editTaskPopupIsActive = ref(false)
-    let copyTasksIsActive = ref(false)
-    let currentDateInDayList = ref(new Date())
-    
-    const getTasksDay = (date) => {
-        try {
-            date = dateToLocal(date);
-            const q = query(collection(db, "tasks"), where("user_id", "==", uid), where("date", "==", date));
-            const unsubscribe = onSnapshot(q, (snapshot) => {
+let tasksDay = ref([])
+let currentTask = ref({})
+let addNewTaskPopupIsActive = ref(false)
+let editTaskPopupIsActive = ref(false)
+let copyTasksIsActive = ref(false)
+let currentDateInDayList = ref(new Date())
+
+
+function getTasksDay (date) {
+    try {
+        date = dateToLocal(date);
+        const q = query(collection(db, "tasks"), where("user_id", "==", uid), where("date", "==", date));
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
             tasksDay.value = [];
 
             snapshot.forEach((doc) => {
@@ -39,83 +41,97 @@
 
             tasksDay.value.sort((a, b) => a.time_from.localeCompare(b.time_from));
             loader.value = false;
-            });
+        });
 
-            return unsubscribe;
-        } catch (err) {
-            console.error("error get", err);
-        }
-    };
+        return unsubscribe;
+    } catch (err) {
+        console.error("error get", err);
+    } 
+};
+let tasksDayWatcher = null
 
-    const postTask = async (task) => {
-        try {
-            const tasksCollectionRef = collection(db, "tasks");
-            const response = await addDoc(tasksCollectionRef,{
-                ...task,
-                user_id: uid
-            });
-            console.log("New task document ID:", response.id);
-        } catch (error) {
-            console.error("Error posting task: ", error);
-        }
-    };
-
-    const putTask = async(task) => {
-        try {
-            const docRef = doc(collection(db, "tasks"), task.id);
-
-            await updateDoc(docRef, {
-                ...task,
-            });
-        } catch(err) {
-            console.error(err)
-        }
+const postTask = async (task) => {
+    try {
+        const tasksCollectionRef = collection(db, "tasks");
+        const response = await addDoc(tasksCollectionRef,{
+            ...task,
+            user_id: uid
+        });
+        console.log("New task document ID:", response.id);
+    } catch (error) {
+        console.error("Error posting task: ", error);
     }
+};
 
-    const deleteTask = async (taskId) => {
-        try {
-            await deleteDoc(doc(db, "tasks", taskId));
-        } catch (err) {
-            console.error("error delete task", err);
-        }
+const postListTasks = async (tasks) => {
+    for (const task of tasks) {
+        if(!task.copy)
+        await postTask(task);
     }
+    tasksDayWatcher = getTasksDay(currentDateInDayList.value)
+};
 
+const putTask = async(task) => {
+    try {
+        const docRef = doc(collection(db, "tasks"), task.id);
 
-    const editingTask = (task) => {
-        currentTask.value = task
-        editTaskPopupIsActive.value = true
+        await updateDoc(docRef, {
+            ...task,
+        });
+    } catch(err) {
+        console.error(err)
     }
+}
 
-    const dateToLocal = (date) => {
-        if(typeof(date) == 'object')
-        return date.toLocaleDateString('en-CA')
-
-        if(typeof(date) == 'number') {
-            const newDate = new Date(date);
-            const year = newDate.getFullYear();
-            const month = ('0' + (newDate.getMonth() + 1)).slice(-2);
-            const day = ('0' + newDate.getDate()).slice(-2);
-
-            const formattedDate = `${year}-${month}-${day}`;
-            return formattedDate
-        }
+const deleteTask = async (taskId) => {
+    try {
+        await deleteDoc(doc(db, "tasks", taskId));
+    } catch (err) {
+        console.error("error delete task", err);
     }
+}
 
-    // Форматирует переданное время в формат "чч:00"
-    const formatTime = (date) => {
-        const hours = date.getHours().toString().padStart(2, "0");
-        return `${hours}:00`;
-    }
 
-    // Добавляет указанное количество часов к переданному времени
-    const addHours = (date, hours) => {
-        const newDate = new Date(date.getTime());
-        newDate.setHours(newDate.getHours() + hours);
-        return newDate;
+const editingTask = (task) => {
+    currentTask.value = task
+    editTaskPopupIsActive.value = true
+}
+
+function dateToLocal(date) {
+    if(typeof(date) == 'object')
+    return date.toLocaleDateString('en-CA')
+
+    if(typeof(date) == 'number') {
+        const newDate = new Date(date);
+        const year = newDate.getFullYear();
+        const month = ('0' + (newDate.getMonth() + 1)).slice(-2);
+        const day = ('0' + newDate.getDate()).slice(-2);
+
+        const formattedDate = `${year}-${month}-${day}`;
+        return formattedDate
     }
-    onMounted(() => {
-        getTasksDay(currentDateInDayList.value)
-    })
+}
+
+// Форматирует переданное время в формат "чч:00"
+const formatTime = (date) => {
+    const hours = date.getHours().toString().padStart(2, "0");
+    return `${hours}:00`;
+}
+
+// Добавляет указанное количество часов к переданному времени
+const addHours = (date, hours) => {
+    const newDate = new Date(date.getTime());
+    newDate.setHours(newDate.getHours() + hours);
+    return newDate;
+}
+const getMonthName = (date) => {
+    const monthFormat = new Intl.DateTimeFormat('ru-RU', { month: 'long' });
+    return monthFormat.format(date);
+}
+onMounted(() => {
+    // getTasksDay(currentDateInDayList.value)
+    tasksDayWatcher = getTasksDay(currentDateInDayList.value)
+})
 </script>
 
 <template>
@@ -125,13 +141,14 @@
                 <div class="schedule-day__title"
                 >
                     Расписание
+                    {{ getMonthName(currentDateInDayList) }}
                 </div>
                 <div class="schedule-day__date">
                     {{ `${currentDateInDayList.toLocaleDateString('ru-RU', { weekday: 'long' })} ${currentDateInDayList.getDate()}` }}
                 </div>
                 <div class="schedule-day__arrows">
                     <div class="schedule-day__arrow schedule-day__arrow-prev"
-                    @click="getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() - 1)))"
+                    @click="tasksDayWatcher = getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() - 1)))"
                     >
                         <svg
                             version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000">
@@ -142,7 +159,7 @@
                         </svg>
                     </div>
                     <div class="schedule-day__arrow schedule-day__arrow-next"
-                    @click="getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() + 1)))"
+                    @click="tasksDayWatcher = getTasksDay((currentDateInDayList.setDate(currentDateInDayList.getDate() + 1)))"
                     >
                         <svg
                             version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000">
@@ -223,6 +240,7 @@
             :listTasks="tasksDay"
             :dateStart="currentDateInDayList.toLocaleDateString('en-CA')"
             @update:isActive="(newValue) => {(copyTasksIsActive=newValue)}"
+            @postCopyTasks="(tasksList) => {postListTasks(tasksList)}"
         >
         </ScheduleCopyTasks>
     </div>
@@ -236,7 +254,7 @@
 
 <style lang="scss" scoped>
 .schedule-day {
-    flex: 0 0 calc(33.333%);
+    flex: 0 0 40%;
     &__header {
         display: flex;
         justify-content: space-between;
