@@ -6,7 +6,7 @@ import ScheduleCopyTasks from './ScheduleCopyTasks.vue';
 import { useUser } from '@/stores/user'
 import TheLoader from './UI/TheLoader.vue'
 import { db } from '@/firebase/config.js'
-import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, where, query, doc, addDoc, setDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
 const user = useUser()
 const loader = ref(true)
@@ -53,11 +53,15 @@ let tasksDayWatcher = null
 const postTask = async (task) => {
     try {
         const tasksCollectionRef = collection(db, "tasks");
-        const response = await addDoc(tasksCollectionRef,{
+        const docRef = doc(tasksCollectionRef); // Создаем документ без указания идентификатора
+
+        const response = await setDoc(docRef, {
             ...task,
-            user_id: uid
+            user_id: uid,
+            id: docRef.id // Добавляем сгенерированный идентификатор в поле id
         });
-        console.log("New task document ID:", response.id);
+
+        console.log("New task document ID:", docRef.id);
     } catch (error) {
         console.error("Error posting task: ", error);
     }
@@ -65,8 +69,13 @@ const postTask = async (task) => {
 
 const postListTasks = async (tasks) => {
     for (const task of tasks) {
-        if(!task.copy)
-        await postTask(task);
+        if(!task.hasOwnProperty('copy')){
+            await postTask(task);
+        }
+        if(task.copy) {
+            delete task.copy
+            await postTask(task);
+        }
     }
     tasksDayWatcher = getTasksDay(currentDateInDayList.value)
 };

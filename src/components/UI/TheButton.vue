@@ -3,6 +3,10 @@
         disabled: {
             type: Boolean,
             required: false,
+        },
+        type: {
+            type: String,
+            required: false,
         }
     })
 </script>
@@ -10,6 +14,7 @@
 <template>
     <button 
     :disabled="disabled"
+    :type="type"
     class="button"
     >
         <slot></slot>

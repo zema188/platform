@@ -7,6 +7,9 @@
     placeHolder: {
         type: String,
         default: ""
+    },
+    required: {
+        type: String,
     }
  })
 
@@ -21,6 +24,7 @@
     :placeholder="placeHolder"
     :value="modelValue"
     @input="$emit('update:modelValue', $event.target.value)"
+    :required="required"
     />
 </template>
 

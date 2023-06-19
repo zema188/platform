@@ -15,7 +15,13 @@ let firstName = ref('Артем')
 
 const authStore = useAuthStore()
 const signUp = async () => {
-    await authStore.signUp(login.value, password.value, firstName.value)
+        await authStore.signUp(login.value, password.value, firstName.value)
+}
+
+function toggleDisabledAuthBtn() {
+    if(login.value.length && password.value.length > 5 && firstName.value)
+        return false
+    return true
 }
 </script>
 
@@ -41,6 +47,7 @@ const signUp = async () => {
             v-model="login"
             @update:modelValue="(newValue) => {(login=newValue)}"
             @keydown.enter="signUp()"
+            :required="'required'"
         />
         <span class="subtitle">
             Ваш пароль
@@ -64,7 +71,9 @@ const signUp = async () => {
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"
-                @click="() => signUp()">
+                :disabled="toggleDisabledAuthBtn()"
+                @click="() => signUp()"
+            >
                 Зарегистрироваться
             </TheButton>
             <div class="welcome__lead">

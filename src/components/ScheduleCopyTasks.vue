@@ -128,6 +128,11 @@ watch(
                 />
             </div>
         </div>
+        <span
+        v-if="!copyList.length"
+        >
+            Нет расписания на этот день
+        </span>
         <schedule-day-list
             :class="'schedule-day__list_copy'"
             :tasksDay="copyList"

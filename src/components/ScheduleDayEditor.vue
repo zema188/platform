@@ -24,12 +24,14 @@
             required: true,
         },
     })
-
+    let saveBtnIsDisabled = ref(true)
     let task = ref({})
 
     watch(() => props.editTaskPopupIsActive, () => {
         task.value = {}
         task.value = {...props.currentTask}
+        if(!props.editTaskPopupIsActive)
+            saveBtnIsDisabled.value = true
     });
 </script>
 
@@ -38,6 +40,7 @@
         :class="'popup-editor shedule-day__editor'"
         :isActive="editTaskPopupIsActive"
         @update:isActive="(newValue) => {(editTaskPopupIsActive=newValue)}"
+        @input="saveBtnIsDisabled = false"
     >
     <div class="popup__title">
         <slot name="title"></slot>
@@ -50,6 +53,7 @@
         :placeHolder="'Зоголовок...'"
         v-model="task.title"
         @update:modelValue="(newValue) => {(task.title=newValue)}"
+        @input="saveBtnIsDisabled = false"
     />
     <div class="popup__subtitle popup__subtitle_left">
         Описание
@@ -59,6 +63,7 @@
         :placeHolder="'Описание...'"
         v-model="task.description"
         @update:modelValue="(newValue) => {(task.description=newValue)}"
+        @input="saveBtnIsDisabled = false"
     />
     <div class="popup__times">
         <div class="popup__times-col">
@@ -70,6 +75,7 @@
                 :modelValue="task.time_from"    
                 v-model="task.time_from"
                 @update:modelValue="(newValue) => {(task.time_from=newValue)}"
+                @input="saveBtnIsDisabled = false"
             />
         </div>
         <div class="popup__times-col">
@@ -81,6 +87,7 @@
                 :modelValue="task.time_to"    
                 v-model="task.time_to"
                 @update:modelValue="(newValue) => {(task.time_to=newValue)}"
+                @input="saveBtnIsDisabled = false"
             />
         </div>
     </div>
@@ -99,6 +106,7 @@
     </div>
     <TheButton class="auth-btn"
     @click="editType=='post' ? $emit('postRequest', task) : $emit('putRequest', task)"
+    :disabled="saveBtnIsDisabled"
     >
     <slot name="btnText">
         Подтвердить

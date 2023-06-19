@@ -15,6 +15,11 @@ const signIn = async () => {
 let login = ref('artem.zimin02@gmail.com')
 let password = ref('123123')
 
+function toggleDisabledAuthBtn() {
+    if(login.value.length && password.value.length)
+        return false
+    return true
+}
 </script>
 
 <template>
@@ -52,7 +57,10 @@ let password = ref('123123')
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"
-                @click="signIn">войти
+                @click="signIn"
+                :disabled="toggleDisabledAuthBtn()"
+            >
+                войти
             </TheButton>
             <div class="welcome__lead">
                 Еще не зарегистрированы ?
