@@ -4,6 +4,12 @@ import LoginView from '@/views/LoginView.vue'
 import SigupView from '@/views/SigupView.vue'
 import ScheduleView from '@/views/ScheduleView.vue'
 import MeView from '@/views/MeView.vue'
+import FreindsView from '@/views/FreindsView.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import ChatsView from '@/views/ChatsView.vue'
+import ChatView from '@/views/ChatView.vue'
+
+
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +50,38 @@ const router = createRouter({
       path: '/me',
       name: 'Me',
       component: MeView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/freinds',
+      name: 'Freinds',
+      component: FreindsView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:id',
+      name: 'Profile',
+      component: ProfileView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/chats',
+      name: 'Chats',
+      component: ChatsView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/chats/:id',
+      name: 'Chat',
+      component: ChatView,
       meta: {
         requiresAuth: true
       }

@@ -12,6 +12,7 @@ import { db } from '@/firebase/config.js'
 // const apiKey = 'AIzaSyDHVm4_wl2OyrXes6S2O33RturQ1boQDLI'
 
 export const useAuthStore = defineStore('auth', () => {
+    const defaultAvatarPath = 'https://firebasestorage.googleapis.com/v0/b/platform-89f1c.appspot.com/o/images%2Favatars-profile%2Fdefault.avif?alt=media&token=6e52ef9c-c41d-42ac-88d6-9b4c2d78ab65'
     const router = useRouter()
     const user = useUser()
     const error = ref('');
@@ -29,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
                 first_name: firstName,
                 createdAt: response.user.metadata.creationTime,
                 emailVerified: false,
-                profile_avatar: 'default',
+                profile_avatar: defaultAvatarPath,
             });
             user.userIsLoggedIn = true
             router.push('/login')
@@ -67,7 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
             throw error.value;
         }
     }
-    return { signUp, signIn, signOutUser, error, loader, }
+    return { signUp, signIn, signOutUser, error, loader, defaultAvatarPath}
 })
 
 

@@ -5,11 +5,15 @@ import TheInput from '../components/UI/TheInput.vue'
 import { useUser } from '@/stores/user';
 import { watch , ref } from 'vue';
 import { storage, db } from '@/firebase/config.js'
+import { useAuthStore } from '@/stores/auth';
+
 import { ref as  frRef, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage";
 import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc, } from "firebase/firestore";
 import ConfirmationActions from '@/components/ConfirmationActions.vue';
 
 const user = useUser()
+const auth = useAuthStore()
+
 const changeDateBtn = ref(true)
 const uploadAvatarBtnisDisabled = ref(true)
 const confirmationDeleteAvatar = ref(false)
@@ -81,7 +85,7 @@ const deleteAvatarProfile = async(confirm) => {
         return deleteObject(docImage)
         .then(() => {
             updateDoc(docUser, {
-                profile_avatar: 'default'
+                profile_avatar: auth.defaultAvatarPath
             });
         })
         .then(() => {
@@ -131,7 +135,7 @@ const deleteAvatarProfile = async(confirm) => {
                     >
                 </label>
                 <font-awesome-icon 
-                    v-if="user.userInfo.profile_avatar != 'default'"
+                    v-if="user.userInfo.profile_avatar != auth.defaultAvatarPath"
                     :class="'me__delete-avatar'"
                     :icon="['fass', 'trash'] "
                     style="color: rgb(209 71 71);"

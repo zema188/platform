@@ -12,26 +12,26 @@ body, a, button {
     font-family: "Rubik";
 }
 /* ===== Scrollbar CSS ===== */
-  /* Firefox */
-  .scroll_blue {
-    scrollbar-width: auto;
-    scrollbar-color: #0033ff #dfaaaa;
-  }
+/* Firefox */
+.scroll_blue {
+  scrollbar-width: auto;
+  scrollbar-color: #0033ff #dfaaaa;
+}
 
-  /* Chrome, Edge, and Safari */
-  .scroll_blue::-webkit-scrollbar {
-    width: 6px;
-  }
+/* Chrome, Edge, and Safari */
+.scroll_blue::-webkit-scrollbar {
+  width: 6px;
+}
 
-  .scroll_blue::-webkit-scrollbar-track {
-    background: #dfaaaa;
-  }
+.scroll_blue::-webkit-scrollbar-track {
+  background: #dfaaaa;
+}
 
-  .scroll_blue::-webkit-scrollbar-thumb {
-    background-color: #0033ff;
-    border-radius: 15px;
-    border: 6px none #ffffff;
-  }
+.scroll_blue::-webkit-scrollbar-thumb {
+  background-color: #0033ff;
+  border-radius: 15px;
+  border: 6px none #ffffff;
+}
 
 body {
   // font-family: Inter,sans-serif;

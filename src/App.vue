@@ -1,10 +1,10 @@
 <script setup>
 import { RouterView } from 'vue-router';
 import { onMounted } from 'vue';
-import TheHeader from './components/layout/TheHeader.vue';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useUser } from './stores/user';
-
+import TheHeader from './components/layout/TheHeader.vue';
+import SideBar from './components/layout/SideBar.vue';
 const user = useUser()
 
 // check for userIsLoggedin
@@ -31,12 +31,26 @@ onMounted(() => {
 <template>
   <div class="wrapper">
     <TheHeader
-    v-if="user.userIsLoggedIn"
+      v-if="user.userIsLoggedIn"
     />
-    <RouterView />
+    <main class="container">
+      <side-bar
+
+      />
+      <RouterView
+      :class="'main__content'"
+      />
+    </main>
   </div>
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.main__content {
+  flex: 1;
+}
 </style>

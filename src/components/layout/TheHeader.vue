@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth.js'
 import { useUser } from '@/stores/user';
 import ProfilePic from './ProfilePic.vue';
 import { ref } from 'vue';
+import TheNotification from '@/components/Notification/TheNotification.vue';
 
 const user = useUser()
 const authStore = useAuthStore()
@@ -22,53 +23,47 @@ const signOut = () => {
                 to="/">
                 Platform
             </router-link>
-            <nav class="nav" v-if="user.userIsLoggedIn">
-                <router-link
-                    to="/schedule">
-                    Расписание
-                </router-link>
-                <router-link
-                    to="/weather">
-                    Погода
-                </router-link>
-                <router-link
-                    to="/games">
-                    Игры
-                </router-link>
-            </nav>
-            <div class="header__profile">
-                <div class="header__profile-pic profile-pic"
-                    @click="profileHeaderIsActive = !profileHeaderIsActive"
-                    >
-                    <profile-pic/>
-                    {{ user.userInfo.first_name }}
+            <div class="header__action">
+                <div class="header__notification-btn">
+                    <font-awesome-icon :icon="['', 'bell']" style="color: #56b9d2;" />
+                    <the-notification/>
                 </div>
-                <div 
-                    :class="['header__profile-action', 'block', {'active': !profileHeaderIsActive}]"
-                    @click="profileHeaderIsActive = !profileHeaderIsActive"
-                >
-                <router-link
-                    :class="['header__profile-link']"
-                    to="/me">
-                    <font-awesome-icon :icon="['fasl', 'gear']" />
-                    Настройки
-                </router-link>
-                <router-link
-                    :class="['header__profile-link']"
-                    disabled="disabled"
-                    aria-disabled="true"
-                    to="/me">
-                    <font-awesome-icon :icon="['fas', 'palette']" />
-                    Тема
-                </router-link>
-                <div
-                    :class="['header__profile-link']"
-                    :disabled="true"
-                    @click="signOut"
+                <div class="header__profile">
+                    <div class="header__profile-pic profile-pic"
+                            @click="profileHeaderIsActive = !profileHeaderIsActive"
                     >
-                    <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" />
-                    Выйти
-                </div>
+                        <profile-pic/>
+                    </div>
+                    <span>
+                        {{ user.userInfo.first_name }}
+                    </span>
+                    <div 
+                        :class="['header__profile-action', 'block', {'active': !profileHeaderIsActive}]"
+                        @click="profileHeaderIsActive = !profileHeaderIsActive"
+                    >
+                    <router-link
+                        :class="['header__profile-link']"
+                        to="/me">
+                        <font-awesome-icon :icon="['fasl', 'gear']" />
+                        Настройки
+                    </router-link>
+                    <router-link
+                        :class="['header__profile-link']"
+                        disabled="disabled"
+                        aria-disabled="true"
+                        to="/me">
+                        <font-awesome-icon :icon="['fas', 'palette']" />
+                        Тема
+                    </router-link>
+                    <div
+                        :class="['header__profile-link']"
+                        :disabled="true"
+                        @click="signOut"
+                        >
+                        <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" />
+                        Выйти
+                    </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -104,6 +99,9 @@ const signOut = () => {
         }
         &__profile {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         &__profile-pic {
             cursor: pointer;
@@ -114,6 +112,7 @@ const signOut = () => {
             align-items: center;
             width: 50px;
             height: 50px;
+            text-align: center;
         }
         &__profile-action {
             position: absolute;
@@ -125,6 +124,19 @@ const signOut = () => {
                 display: block;
             }
         }
+        &__notification-btn {
+            cursor: pointer;
+            position: relative;
+            & svg {
+                width: 25px;
+                height: 25px;
+            }
+        }
+        &__action {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
     }
     .logo {
         font-family: "Rubik";
@@ -134,30 +146,5 @@ const signOut = () => {
         text-transform: uppercase;
         color: #323232;
     }
-    .nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        & a {
-            font-weight: 500;
-            font-size: 20px;
-            line-height: 24px;
-            color: #323232;
-            &:hover {
-                &::before {
-                    opacity: 1;
-                }
-            }
-            &::before {
-                content: "/";
-                font-weight: bold;
-                font-size: 20px;
-                line-height: 24px;
-                color: #0077FD;
-                opacity: 0;
-                transition: 0.2s;
-            }
-        }
-    }
+
 </style>

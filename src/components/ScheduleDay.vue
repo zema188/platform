@@ -30,7 +30,7 @@ function getTasksDay (date) {
 
             snapshot.forEach((doc) => {
                 let property = doc.data();
-                property.id = doc.id;
+                // property.id = doc.id;
                 tasksDay.value.push(property);
             });
 
@@ -144,7 +144,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="schedule-day">
+    <div class="schedule-day block">
         <div class="schedule-day__header">
             <div class="schedule-day__header-info">
                 <div class="schedule-day__title"
@@ -263,7 +263,10 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .schedule-day {
-    flex: 0 0 40%;
+    flex: 1;
+    max-width: 546px;
+    margin: 0 auto;
+    padding: 40px;
     &__header {
         display: flex;
         justify-content: space-between;

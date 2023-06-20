@@ -1,15 +1,17 @@
 <script setup>
 import { watch, ref, onMounted } from 'vue';
 import { ref as  frRef, uploadBytes, getDownloadURL} from "firebase/storage";
-import { storage, db } from '@/firebase/config.js'
+import { storage, db, } from '@/firebase/config.js'
 import { useUser } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
 
 import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 const user = useUser()
+const auth = useAuthStore()
 
 let defaultAvatar = ref(false)
 const handleImage = () => {
-    return(user.userInfo.profile_avatar == 'default')
+    return(user.userInfo.profile_avatar == auth.defaultAvatarPath)
 }
 
 watch(() => user.userInfo, () => {

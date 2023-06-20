@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="container schedule">
+  <div class=" schedule">
     <schedule-day/>
   </div>
 </template>

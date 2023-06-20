@@ -13,7 +13,7 @@
 <template>
     <div class="schedule-day__list">
         <schedule-day-item
-        v-for="(task, index) in tasksDay" :task="task" :key="index"
+        v-for="(task, index) in tasksDay" :task="task" :key="task.id"
         @deleteTask="(taskId) => $emit('deleteTask', taskId)"
         @editTask="(task) => $emit('editTask', task)"
         />
