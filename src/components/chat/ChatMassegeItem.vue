@@ -39,8 +39,9 @@ const convetTime = (timestamp) => {
         display: flex;
         align-items: flex-end;
         gap: 2px;
-        max-width: calc(50% - 20px);
+        max-width: 90%;
         justify-content: flex-start;
+        word-break: break-all;
         &._my {
             flex-direction: row-reverse;
             margin-left: auto;
@@ -62,6 +63,7 @@ const convetTime = (timestamp) => {
 
     &__message-item-time {
         font-size: 10px;
+        white-space: nowrap;
     }
 }
 </style>

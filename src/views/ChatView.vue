@@ -1,5 +1,5 @@
 <script setup>
-import ChatList from '../components/chat/ChatList.vue';
+import ChatList from '../components/chat/ChatMassegesList.vue';
 import { onMounted, ref } from 'vue';
 import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, getDoc, onSnapshot, setDoc, orderBy } from "firebase/firestore";
@@ -7,12 +7,26 @@ import { useUser } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import TheInput from '../components/UI/TheInput.vue';
 
+const router = useRouter()
 const route = useRoute()
 const user = useUser()
 const friendInfo = ref({})
-let fieldMessage = ref('')
 const chatMessages = ref([])
+
+let fieldMessage = ref('')
 let chatId = ref('')
+
+const accessCheck = async() => {
+    try {
+        const chachUsersDoc = doc(db, `chats/${chatId}`)
+
+        const response = await getDoc(chachUsersDoc)
+
+        return(response.data().participator.includes(user.userInfo.user_id))
+    } catch(err) {
+        console.error(err)
+    }
+}
 
 const getFreindInfo = async() => {
 
@@ -34,11 +48,9 @@ const getChatUsersInfo = async() => {
 
         const response = await getDoc(chachUsersDoc)
 
-        if(user.userInfo.user_id == response.data().participator[0])
-            friendInfo.value.id = response.data().participator[1]
-
-        else 
-            friendInfo.value.id = response.data().participator[0]
+        friendInfo.value.id = user.userInfo.user_id === response.data().participator[0]
+        ? response.data().participator[1]
+        : response.data().participator[0]
 
     } catch(err) {
         console.error(err)
@@ -63,7 +75,7 @@ const getChatMessages = async () => {
             chatMessages.value.sort((a, b) => {
                 const dateA = a.date_create.toDate();
                 const dateB = b.date_create.toDate();
-                return dateA - dateB;
+                return dateB - dateA;
             });
         });
 
@@ -74,10 +86,12 @@ const getChatMessages = async () => {
     }
 };
 
+
+
 const sendMessage = async () => {
     try {
         if(checkEmptySpaces(fieldMessage.value))
-        return
+            return
         const messageCollection = collection(db, "messages") 
         const messageDoc = doc(messageCollection)
 
@@ -103,9 +117,14 @@ function checkEmptySpaces(text) {
 }
 onMounted(async () => {
     chatId = route.params.id
-    await getChatUsersInfo()
-    await getFreindInfo()
-    await getChatMessages()
+    if(!await accessCheck()) {
+        router.push('/chats')
+    } else {
+        await getChatUsersInfo()
+        await getFreindInfo()
+        await getChatMessages()
+    }
+
 })
 </script>
 

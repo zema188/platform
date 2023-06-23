@@ -1,5 +1,6 @@
 <script setup>
-import ChatItem from './ChatItem.vue';
+import ChatMassegesItem from './ChatMassegeItem.vue'
+import { onMounted, ref, watch  } from 'vue';
 
 const props = defineProps({
     messagesList: {
@@ -10,8 +11,10 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="chat__messages-list scroll_blue">
-        <chat-item
+    <div class="chat__messages-list scroll_blue"
+        ref="chatMessagesListRef"
+    >
+        <chat-masseges-item
             v-for="(message) of messagesList" :messageInfo="message" :key="message.message_id"
         />
     </div>
@@ -24,5 +27,10 @@ const props = defineProps({
     padding: 20px 5px;
     height: 400px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    // & .toScroll {
+    //     display: none;
+    // }
 }
 </style>
