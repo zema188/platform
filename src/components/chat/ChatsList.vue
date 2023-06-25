@@ -1,5 +1,5 @@
 <script setup>
-import ChatItemChats from './ChatItemChats.vue';
+import ChatsItem from './ChatsItem.vue';
 
 const props = defineProps({
     chats: {
@@ -11,7 +11,7 @@ const props = defineProps({
 
 <template>
     <div class="chat__list-chats ">
-        <chat-item-chats
+        <chats-item
             v-for="(chat,index) of chats" :chatInfo="chat" :key="index"
         />
     </div>

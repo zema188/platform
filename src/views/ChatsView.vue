@@ -1,5 +1,5 @@
 <script setup>
-import ChatListChats from '../components/chat/ChatListChats.vue';
+import ChatsList from '../components/chat/ChatsList.vue';
 import { onMounted, ref } from 'vue';
 import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, getDoc, getDocs, onSnapshot, setDoc, orderBy } from "firebase/firestore";
@@ -45,7 +45,7 @@ onMounted(async() => {
         >
             Чатов нет
         </div>
-        <chat-list-chats
+        <chats-list
             v-else
             :chats="chats"
         />

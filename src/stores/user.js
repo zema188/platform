@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, where, query, doc, getDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '@/firebase/config.js'
 
 
@@ -25,13 +25,10 @@ export const useUser = defineStore('user', () => {
     const getInfoUser = async (id) => {
         try {
             const docRef = doc(db, "users", id);
-            const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
-                userInfo.value = {
-                    ...docSnapshot.data()
-                }
-
-            })
-            return unsubscribe;
+            const response = await getDoc(docRef)
+            userInfo.value = {
+                ...response.data()
+            }
         } catch(err) {
             console.error(err)
         }

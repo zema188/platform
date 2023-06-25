@@ -2,8 +2,6 @@
 import { RouterLink } from 'vue-router';
 import { useUser } from '@/stores/user';
 import { db } from '@/firebase/config.js'
-import { collection, where, query,  getDocs, addDoc, or } from "firebase/firestore";
-import { useRouter, useRoute } from 'vue-router'
 
 
 const props = defineProps({
@@ -13,48 +11,8 @@ const props = defineProps({
     }
 })
 const user = useUser()
-const router = useRouter()
-const route = useRoute()
 
-const startChat = async(e) => {
-    e.preventDefault();
 
-    let ids = [
-        user.userInfo.user_id,
-        props.friend.user_id
-    ]
-    
-    let reversedIds = ids.slice().reverse();
-
-    try {
-        const q = query(collection(db, "chats"),
-        or (
-            where("participator", "in", [ids]),
-            where("participator", "in", [reversedIds]),
-        )
-        );
-
-        const response = await getDocs(q)
-
-        if (!response.empty) {
-            console.log('найден чат')
-            const doc = response.docs[0];
-            const chatId = doc.id;
-            router.push(`/chats/${chatId}`);
-            
-        } else {
-            console.log('чат не найден')
-            const newChatRef = await addDoc(collection(db, "chats"), {
-                participator: ids
-            });
-
-            const newChatId = newChatRef.id;
-            router.push(`/chats/${newChatId}`);
-        }
-    } catch(err) {
-        console.error(err)
-    }
-}
 </script>
 
 <template>
@@ -76,11 +34,32 @@ const startChat = async(e) => {
                     {{ friend.last_name }}
                 </div>
                 <div class="freinds__item-message-btn"
-                @click="(e) => startChat(e)"
+                @click="(e) =>$emit('startChat', props.friend.user_id, e)"
                 >
                     Отправить сообщение
                     <font-awesome-icon :icon="['fas', 'message']" style="color: rgb(19 125 203);" />
                 </div>
+                <!-- <div class=""
+                @click="(e) =>$emit('addFreind', props.friend.user_id, e)"
+                
+                >
+                    Добавить в друзья
+                </div>
+                <div class="">
+                    Заявка отправлена
+                </div> -->
+                <!-- <div class="">
+                    Хочет добавить вас в друзья
+                    <span>
+                        Добавить
+                    </span>
+                    <span>
+                        Отклонить
+                    </span>
+                </div>
+                <div class="">
+                    У вас в друзьях
+                </div> -->
             </div>
         </div>
     </router-link>
@@ -116,6 +95,7 @@ const startChat = async(e) => {
         display: flex;
         align-items: center;
         gap: 5px;
+        margin-bottom: 3px;
     }
 }
 
