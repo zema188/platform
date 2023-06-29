@@ -27,6 +27,10 @@ const user = useUser()
             to="/freinds">
             Друзья
         </router-link>
+        <router-link
+            to="/games">
+            Игры
+        </router-link>
         <!-- <router-link
             to="/weather">
             Погода
