@@ -4,14 +4,13 @@ import { db } from '@/firebase/config.js'
 import { useUser } from '@/stores/user';
 import { collection, where, query, doc, getDoc, onSnapshot, getDocs, or, setDoc, updateDoc, deleteDoc} from "firebase/firestore";
 import { useRouter, useRoute } from 'vue-router'
-
+import FreindStatus from '../components/freinds/FreindStatus.vue';
 const router = useRouter()
 const route = useRoute()
 const profile = ref({})
 const friendsStatus = ref({})
 const profileId = route.params.id
 const user = useUser()
-let deleteArrowBtn = ref(false)
 let freindsStatusSnapShot = ref(null)
 const getProfileInfo = async() => {
 
@@ -33,14 +32,14 @@ const getProfileInfo = async() => {
 const getFriendStatus = async () => {
   try {
     const q = query(collection(db, "friends"),
-    or(
-        (where("user_requesterId", "==", profileId), where("user_recipientId", "==", user.userInfo.user_id)),
-        (where("user_requesterId", "==", user.userInfo.user_id), where("user_recipientId", "==",profileId)),
-    ));
+        where("user_requesterId", "in", [profileId, user.userInfo.user_id]),
+        where("user_recipientId", "in", [profileId, user.userInfo.user_id])
+        
+    );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            console.log(doc)
+            console.log(doc.data())
         })
         const doc = querySnapshot.docs[0];
         if(doc === undefined) {
@@ -161,89 +160,17 @@ onMounted( async() => {
                 :alt="avatar"
             >
         </div>
-        <div class="profile__Friend-status"
-            v-if="profileId !== user.userInfo.user_id"
-        >
-            <span class="profile__Friend-add"
-                v-if="friendsStatus.status == undefined"
-                @click="addFriend()"
-            >
-                Добавить в друзья
-            </span>
-            <span
-                v-if="friendsStatus.status === 0 && friendsStatus.user_requesterId === user.userInfo.user_id"
-            >
-                Заявка отправлена
-                <div class="profile__Friend-action">
-                    <span
-                        @click="deleteFriend()"
-                    >
-                        Отменить заявку
-                    </span>
-                </div>
-            </span>
-            <span
-                v-if="friendsStatus.status === 0 && friendsStatus.user_recipientId === user.userInfo.user_id"
-            >
-                Хочет добавить вас в друзья
-                <div class="profile__Friend-action">
-                    <span
-                        @click="acceptFriend()"
-                    >
-                        Принять
-                    </span>
-                    <span
-                        @click="rejectFriend()"
-                    >
-                        Отклонить
-                    </span>
-                </div>
-            </span>
-            <span
-                class="profile__Friend-delete"
-                v-if="friendsStatus.status === 1"
-            >
-                У вас в друзья
-                
-                <div class="profile__Friend-delete-arrow"
-                    :class="[{active: deleteArrowBtn}]"
-                    @click="deleteArrowBtn = !deleteArrowBtn"
-                >
-                    <svg  xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 1024 1024" class="icon" version="1.1"><path d="M903.232 256l56.768 50.432L512 768 64 306.432 120.768 256 512 659.072z" fill="#000000"/>
-                    
-                    </svg>
-                    <span
-                        @click="deleteFriend()"
-                    >
-                        Удалить из друзуй
-                    </span>
-                </div>
-            </span>
-            <span
-                v-if="friendsStatus.status === 2 && friendsStatus.user_recipientId === user.userInfo.user_id"
-            >
-                Вы отклонили заявку
-                <div class="profile__Friend-action">
-                    <span
-                        @click="addFriendNew()"
-                    >
-                        Отправить заявку в друзья
-                    </span>
-                </div>
-            </span>
-            <span
-                v-if="friendsStatus.status === 2 && friendsStatus.user_requesterId === user.userInfo.user_id"
-            >
-                Заявка в друзья отклонена
-                <div class="profile__Friend-action">
-                    <span
-                        @click="addFriendAgain()"
-                    >
-                        Отправить запрос заново
-                    </span>
-                </div>
-            </span>
-        </div>
+        <freind-status
+            :profileId="profileId"
+            :userId="user.userInfo.user_id"
+            :friendsStatus="friendsStatus"
+            @addFriend="addFriend()"
+            @addFriendAgain="addFriendAgain()"
+            @addFriendNew="addFriendNew()"
+            @acceptFriend="acceptFriend()"
+            @deleteFriend="deleteFriend()"
+            @rejectFriend="rejectFriend()"
+        />
     </div>
 </template>
 
