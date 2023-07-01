@@ -9,44 +9,50 @@ const props = defineProps({
 
 <template>
     <div class="snake__cell"
-        :class="[{head: cell === 1}]"
+        :class="[{head: cell === 2}, {tail: cell === 1}, {food: cell === -1}]"
     >
     </div>
 </template>
 
 <style lang="scss" >
 .snake__cell {
-    width: 15px;
-    height: 15px;
-    background: #969696;
+    width: 25px;
+    height: 25px;
+    background-color: #aad751;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid #000;
     position: relative;
+    z-index: 1;
+    &::after {
+        transition: .2s scale;
+        content: "";
+        background: url('@/assets/images/snake/food.svg') 0 0 no-repeat;
+        background-size: 40px;
+        background-position: center;
+        height: 100%;
+        width: 100%;
+        display: block;
+        scale: 0;
+    }
+    &:nth-child(2n) {
+        background: #a2d149;
+    }
     &.head {
-        background: red;
-        &::after {
-            background: red;
-            width: 100%;
-        }
+        background-color: #7296f8;
+        position: relative;
+        z-index: 2;
     }
     &.tail {
-        background: rgb(233, 144, 144);
+        background-color: #426fe3;
+        position: relative;
+        z-index: 1;
+    }
+    &.food {
         &::after {
-            background: rgb(238, 142, 142);
-            width: 100%;
+            scale: 1;
         }
     }
-    &::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        transition: 0.35s width linear;
-        width: 0%;
-        display: none;
-    }
+
 }
 </style>

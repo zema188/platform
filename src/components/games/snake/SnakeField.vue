@@ -20,7 +20,6 @@ const props = defineProps({
 .snake__field {
     display: flex;
     flex-wrap: wrap;
-    width: 302px;
-    margin: 0 auto;
+    width: 377px;
 }
 </style>
