@@ -61,7 +61,6 @@ const postTask = async (task) => {
             id: docRef.id // Добавляем сгенерированный идентификатор в поле id
         });
 
-        console.log("New task document ID:", docRef.id);
     } catch (error) {
         console.error("Error posting task: ", error);
     }

@@ -6,7 +6,7 @@ import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, addDoc, setDoc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useUser } from '@/stores/user'
 import TheButton from '@/components/UI/TheButton.vue'
-
+import SnakeLeaders from './SnakeLeaders.vue';
 const user = useUser()
 
 const gameConfig = {
@@ -115,7 +115,14 @@ function cheackClashes(x, y) {
   } else if(newY < 0) {
     newY = gameConfig.dy - 1;
   }
-
+  if(newX === snake.segments[1].x && newY === snake.segments[1].y) {
+    snake.directionX = -1 * snake.directionX;
+    snake.directionY = -1 * snake.directionY;
+    const currentHeadX = snake.segments[0].x;
+    const currentHeadY = snake.segments[0].y;
+    newX = currentHeadX + snake.directionX;
+    newY = currentHeadY + snake.directionY;
+  }
   return { x: newX, y: newY };
 }
 
@@ -170,30 +177,34 @@ function drowFood() {
 
 function addControl() {
   window.addEventListener('keydown', function (e) {
-    const key = e.key;
-    
-    if (key === 'ArrowRight' || key === 'd') {
+    const key = e.code;
+    console.log(e)
+    if (key === 'ArrowRight' || key === 'KeyD') {
       if(snake.directionX !== -1) {
         snake.directionX = 1;
         snake.directionY = 0;
+        return
       }
     }
-    if (key === 'ArrowLeft' || key === 'a') {
+    if (key === 'ArrowLeft' || key === 'KeyA') {
       if(snake.directionX !== 1) {
         snake.directionX = -1;
         snake.directionY = 0;
+        return
       }
     }
-    if (key === 'ArrowDown' || key === 's') {
+    if (key === 'ArrowDown' || key === 'KeyS') {
       if(snake.directionY !== -1) {
         snake.directionY = 1;
         snake.directionX = 0;
+        return
       }
     }
-    if (key === 'ArrowUp' || key === 'w') {
+    if (key === 'ArrowUp' || key === 'KeyW') {
       if(snake.directionY !== 1) {
         snake.directionY = -1;
         snake.directionX = 0;
+        return
       }
     }
   });
@@ -320,7 +331,11 @@ async function getSnakeGameUserInfo  () {
 
 
 <template>
-    <div class="snake__wrapper"
+  <div class="snake__wrapper">
+    <snake-leaders
+      
+    />
+    <div class="snake__game"
     >
       <div class="snake__header">
         <div class="snake__info">
@@ -356,15 +371,16 @@ async function getSnakeGameUserInfo  () {
       />
 
     </div>
-
+  </div>
 </template>
 
 <style lang="scss" >
 .snake {
-
 &__wrapper {
-  max-width: 420px;
-  margin: 0 auto;
+  display: flex;
+  gap: 30px;
+}
+&__game {
   background: #578a34;
 }
 

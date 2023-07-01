@@ -116,7 +116,6 @@ const getApplications = async(type) => {
             activeListName.value = 'applicationsFromMe'
 
             if(applicationsFromMe.value === null) {
-                console.log('test1')
                 currentList.value = []
                 return
             }

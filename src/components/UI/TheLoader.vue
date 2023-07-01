@@ -1,5 +1,5 @@
 <template>
-    <div class="lds-dual-ring"></div>
+    <div class="lds-dual-ring loader"></div>
 </template>
 <style scoped>
 .lds-dual-ring {
