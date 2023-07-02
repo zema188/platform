@@ -9,6 +9,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import ChatsView from '@/views/ChatsView.vue'
 import ChatView from '@/views/ChatView.vue'
 import GamesView from '@/views/GamesView.vue'
+import TheSnake from '@/views/TheSnake.vue'
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 const router = createRouter({
@@ -90,6 +91,14 @@ const router = createRouter({
       path: '/games',
       name: 'Games',
       component: GamesView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+        {
+      path: '/games/snake',
+      name: 'Snake',
+      component: TheSnake,
       meta: {
         requiresAuth: true
       }

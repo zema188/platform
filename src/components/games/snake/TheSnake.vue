@@ -11,7 +11,7 @@ const user = useUser()
 
 const gameConfig = {
   step: 0,
-  maxStep: 4,
+  maxStep: 5,
   dx: 15,
   dy: 15
 };

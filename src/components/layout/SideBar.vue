@@ -12,7 +12,7 @@ const user = useUser()
 <template>
     <nav class="nav" v-if="user.userIsLoggedIn">
         <router-link
-            to="/schedule">
+            :to="`/profile/${user.userInfo.user_id}`">
             Моя страница
         </router-link>
         <router-link
