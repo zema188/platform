@@ -58,6 +58,8 @@ function toggleDisabledAuthBtn() {
             v-model="password"
             @update:modelValue="(newValue) => {(password=newValue)}"
             @keydown.enter="signUp()"
+            :type="'password'"
+
         />
         <span class="subtitle">
             Ваше имя

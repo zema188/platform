@@ -9,7 +9,11 @@ import ProfileView from '@/views/ProfileView.vue'
 import ChatsView from '@/views/ChatsView.vue'
 import ChatView from '@/views/ChatView.vue'
 import GamesView from '@/views/GamesView.vue'
-import TheSnake from '@/views/TheSnake.vue'
+import SnakeView from '@/views/SnakeView.vue'
+import SapperView from '@/views/SapperView.vue'
+import TimeTable from '@/views/TimeTableView.vue'
+import TestsView from '@/views/TestsView.vue'
+import TestView from '@/views/TestView.vue'
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 const router = createRouter({
@@ -95,10 +99,42 @@ const router = createRouter({
         requiresAuth: true
       }
     },
-        {
+    {
       path: '/games/snake',
       name: 'Snake',
-      component: TheSnake,
+      component: SnakeView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/games/sapper',
+      name: 'Sapper',
+      component: SapperView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/time-table',
+      name: 'TimeTable',
+      component: TimeTable,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/tests',
+      name: 'Tests',
+      component: TestsView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/tests/:id',
+      name: 'Test',
+      component: TestView,
       meta: {
         requiresAuth: true
       }

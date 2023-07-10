@@ -1,6 +1,6 @@
 <script setup>
 import ChatMassegesItem from './ChatMassegeItem.vue'
-import { onMounted, ref, watch  } from 'vue';
+import { onMounted, ref,   } from 'vue';
 
 const props = defineProps({
     messagesList: {
@@ -16,6 +16,7 @@ const props = defineProps({
     >
         <chat-masseges-item
             v-for="(message) of messagesList" :messageInfo="message" :key="message.message_id"
+            @enlarge="(src) => $emit('enlarge',src)"
         />
     </div>
 </template>

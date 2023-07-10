@@ -7,11 +7,13 @@ import { collection, where, query, doc, addDoc, setDoc, getDoc, deleteDoc, updat
 import { useUser } from '@/stores/user'
 import TheButton from '@/components/UI/TheButton.vue'
 import SnakeLeaders from './SnakeLeaders.vue';
+import SnakeBody from './SnakeBody.vue'
+
 const user = useUser()
 
 const gameConfig = {
   step: 0,
-  maxStep: 5,
+  maxStep: 6,
   dx: 15,
   dy: 15
 };
@@ -178,7 +180,6 @@ function drowFood() {
 function addControl() {
   window.addEventListener('keydown', function (e) {
     const key = e.code;
-    console.log(e)
     if (key === 'ArrowRight' || key === 'KeyD') {
       if(snake.directionX !== -1) {
         snake.directionX = 1;
@@ -350,8 +351,12 @@ async function getSnakeGameUserInfo  () {
       </div>
       <div class="snake__content">
           <snake-field
-              :gameField="gameField.flat()"
-          />
+            :gameField="gameField.flat()"
+          >
+                <!-- <snake-body
+                  :gameField="gameField"
+              /> -->
+          </snake-field>
           <div class="snake__play-btns-main">
             <the-button
               :class="'snake__play-main'"

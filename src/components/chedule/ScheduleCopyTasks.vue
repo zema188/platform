@@ -4,7 +4,7 @@
 import PopUp from '@/components/UI/Popup.vue';
 import ScheduleDayList from './ScheduleDayList.vue';
 import TheInput from '@/components/UI/TheInput.vue';
-import TheButton from './UI/TheButton.vue';
+import TheButton from '@/components/UI/TheButton.vue';
 import ScheduleDayEditor from './ScheduleDayEditor.vue';
 import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, addDoc, onSnapshot, deleteDoc, updateDoc, getDoc, getDocs } from "firebase/firestore";

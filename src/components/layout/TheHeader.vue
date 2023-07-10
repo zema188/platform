@@ -77,11 +77,9 @@ const signOut = () => {
         box-shadow: 0 4px 4px rgba(41,41,41,.08);
         backdrop-filter: blur(2px);
         z-index: 5;
-        position: sticky;
-        top: 0;
     }
     .header {
-        padding: 20px 15px 20px;
+        padding: 5px 15px;
         max-width: 1430px;
         margin: 0 auto;
         display: flex;

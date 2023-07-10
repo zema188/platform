@@ -3,7 +3,7 @@
 <script setup>
     import PopUp from '@/components/UI/Popup.vue';
     import TheInput from '@/components/UI/TheInput.vue';
-    import TheButton from './UI/TheButton.vue';
+    import TheButton from '@/components/UI/TheButton.vue';
     import { watch , ref } from 'vue';
     import { getDatabase, ref as dbRef, set, push, child } from "firebase/database";
     import { useUser } from '@/stores/user'

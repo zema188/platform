@@ -1,5 +1,4 @@
 <script setup>
-import TheEye from '@/components/UI/TheEye.vue'
 import { onMounted, ref, watch } from 'vue';
 
  const props = defineProps({
@@ -29,25 +28,13 @@ onMounted(() => {
 
 <template>
     <div class="input-w">
-        <input 
-        :class="'input'"
-        :placeholder="placeHolder"
-        :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
-        :required="required"
-        :type="currentType"
-        />
-        <the-eye
-            v-if="type==='password'"
-            @showpassword="() => currentType = 'text'"
-            @hidepassword="() => currentType = 'password'"
-        />
+        <textarea :class="'textarea'" :placeholder="placeHolder" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :required="required" :type="currentType"></textarea>
     </div>
 </template>
 
 
 <style lang="scss" >
-.input {
+.textarea {
     font-size: 14px;
     line-height: 16px;
     background: #EEF1F8;
@@ -56,6 +43,8 @@ onMounted(() => {
     padding: 10px 15px;
     border-radius: 10px;
     color: #000;
+    resize: none;
+    height: 100px;
     &:focus {
         &::placeholder {
             color: transparent;
@@ -67,6 +56,5 @@ onMounted(() => {
 }
 .input-w {
     position: relative;
-    
 }
 </style>

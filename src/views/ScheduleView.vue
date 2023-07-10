@@ -1,5 +1,5 @@
 <script setup>
-  import ScheduleDay from '@/components/ScheduleDay.vue'
+  import ScheduleDay from '@/components/chedule/ScheduleDay.vue'
 </script>
 
 <template>

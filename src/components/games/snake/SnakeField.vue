@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted, watch } from 'vue';
 import SnakeCell from './SnakeCell.vue';
 const props = defineProps({
     gameField: {
@@ -6,10 +7,12 @@ const props = defineProps({
         required: true,
     }
 })
+
 </script>
 
 <template>
     <div class="snake__field">
+        <slot></slot>
         <snake-cell
             v-for="(cell, index) of gameField" :cell="cell" :key="index"
         />
@@ -21,5 +24,6 @@ const props = defineProps({
     display: flex;
     flex-wrap: wrap;
     width: 377px;
+    position: relative;
 }
 </style>

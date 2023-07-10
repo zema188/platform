@@ -24,6 +24,13 @@ const convetTime = (timestamp) => {
     >
         <div class="chat__message-item-text">
             {{ messageInfo.message_text }}
+            <div class="chat__message-item-images">
+                <img
+                    v-for="(file, index) of messageInfo.files" :key="index"
+                    :src="file"
+                    @click="$emit('enlarge',file)"
+                >
+            </div>
         </div>
         <div class="chat__message-item-time">
             {{ convetTime(messageInfo.date_create) }}
@@ -51,7 +58,7 @@ const convetTime = (timestamp) => {
             }
         }
         &:not(:last-child) {
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
     }
     &__message-item-text {
@@ -64,6 +71,17 @@ const convetTime = (timestamp) => {
     &__message-item-time {
         font-size: 10px;
         white-space: nowrap;
+    }
+    &__message-item-images {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        & img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
     }
 }
 </style>

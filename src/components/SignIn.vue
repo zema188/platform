@@ -54,6 +54,7 @@ function toggleDisabledAuthBtn() {
             v-model="password"
             @update:modelValue="(newValue) => {(password=newValue)}"
             @keydown.enter="signIn()"
+            :type="'password'"
         />
         <div class="welcome__action" v-if="!authStore.loader">
             <TheButton class="auth-btn"

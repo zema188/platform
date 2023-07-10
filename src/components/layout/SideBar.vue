@@ -17,8 +17,12 @@ const user = useUser()
         </router-link>
         <router-link
             to="/schedule">
-            Расписание
+            Мое Расписание
         </router-link>
+        <!-- <router-link
+            to="/time-table">
+            Расписание затяний
+        </router-link> -->
         <router-link
             to="/chats">
             Сообщения
@@ -31,14 +35,10 @@ const user = useUser()
             to="/games">
             Игры
         </router-link>
-        <!-- <router-link
-            to="/weather">
-            Погода
-        </router-link>
         <router-link
-            to="/games">
-            Игры
-        </router-link> -->
+            to="/tests">
+            Тесты
+        </router-link>
     </nav>
 </template>
 

@@ -1,7 +1,7 @@
 <script setup>
     import { onMounted, ref } from "vue"
-    import CloseCross from "./UI/CloseCross.vue";
-    import EditIcon from "./UI/EditIcon.vue";
+    import CloseCross from "@/components/UI/CloseCross.vue";
+    import EditIcon from "@/components/UI/EditIcon.vue";
 
     const props = defineProps({
         task: {

@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue';
 import ScheduleDayEditor from './ScheduleDayEditor.vue';
 import ScheduleCopyTasks from './ScheduleCopyTasks.vue';
 import { useUser } from '@/stores/user'
-import TheLoader from './UI/TheLoader.vue'
+import TheLoader from '@/components/UI/TheLoader.vue'
 import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, addDoc, setDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
