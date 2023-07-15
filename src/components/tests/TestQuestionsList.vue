@@ -12,6 +12,7 @@ const props = defineProps({
     <div class="test__questions-list">
         <test-questions-item
             v-for="(question, index) of questions" :key="index" :question="question" :index="index"
+            @deleteQuestion="(index) => $emit('deleteQuestion', index)"
         />
     </div>
 </template>

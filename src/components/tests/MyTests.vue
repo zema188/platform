@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import MyTestsHeader from '@/components/tests/MyTestsHeader.vue'
 import CreateTest from './CreateTest.vue';
 import MyTestsList from '@/components/tests/MyTestsLists.vue'
+import ConfirmationActions from '@/components/ConfirmationActions.vue';
 
 import { useUser } from '@/stores/user'
 import TheLoader from '@/components/UI/TheLoader.vue'
@@ -12,7 +13,7 @@ import { collection, where, query, doc, addDoc, setDoc, onSnapshot, deleteDoc, u
 const user = useUser()
 const loader = ref(true)
 const uid = user.userInfo.user_id
-
+const confirmationDeleteTest = ref(false)
 let createTestPopupIsActive = ref(false)
 const tests = ref([])
 
@@ -41,10 +42,19 @@ const getMyTests = async() => {
     } 
 }
 
-const deleteTest = async(testId) => {
+
+let deleteTestId = ref(null)
+const deleteTest = async(confirm) => {
+    if(!confirm) {
+        confirmationDeleteTest.value = false
+        return
+    }
     try {
-        await deleteDoc(doc(db, "tests", testId));
+        console.log(deleteTestId.value)
+        await deleteDoc(doc(db, "tests", deleteTestId.value));
         getMyTests()
+        confirmationDeleteTest.value = false
+        deleteTestId.value = null
     } catch (err) {
         console.error("error delete test", err);
     }
@@ -66,11 +76,30 @@ onMounted(() => {
         />
         <my-tests-list
             :tests="tests"
-            @deleteTest="(id) => deleteTest(id)"
+            @deleteTest="(id) => {confirmationDeleteTest = !confirmationDeleteTest, deleteTestId = id}"
         />
+        <confirmation-actions
+            :isActive="confirmationDeleteTest"
+            @update:isActive="(newValue) => {(confirmationDeleteTest=newValue)}"
+            @answer="(answer) => deleteTest(answer)"
+        >
+            <template v-slot:text>
+                Вы действительно удалить тест 
+                <span>
+                    удалить тест ?
+                </span>
+            </template>
+            <template v-slot:btnYes>
+                Да, удалить
+            </template>
+            <template v-slot:btnNo>
+                Отмена
+            </template>
+        </confirmation-actions>
     </div>
 </template>
 
 <style lang="scss" scoped>
 
 </style>
+<!-- @deleteTest="(id) => deleteTest(id)" -->

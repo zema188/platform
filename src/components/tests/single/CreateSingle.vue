@@ -7,6 +7,10 @@ import { ref, watch } from 'vue'
 import { useUser } from '@/stores/user'
 import { db } from '@/firebase/config.js'
 import { collection, where, query, doc, arrayUnion, addDoc, setDoc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { defineEmits } from 'vue';
+
+const emit = defineEmits(['createAnswer']);
+
 const props = defineProps({
     testId: {
         type: String,
@@ -45,12 +49,12 @@ const createAnswer = async () => {
         const docRef = doc(collection(db, "tests"), props.testId)
         await updateDoc(docRef, {
             test_info: arrayUnion({
-                type: 'Single',
+                type: 'radio',
                 question: question.value,
                 answers: answers.value,
             })
         });
-        this.$emit('createAnswer');
+        emit('createAnswer');
     } catch (error) {
         console.error("Error posting test: ", error);
     }

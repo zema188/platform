@@ -42,6 +42,24 @@ const getTestData = async() => {
 
 }
 
+const deleteQuestion = async(index) => {
+
+    try {
+        testInfo.value.test_info.splice(index,1)
+        const ref = doc(db, "tests", testId);
+
+        await updateDoc(ref, {
+            ...testInfo.value
+        });
+        await getTestData()
+
+    } catch(err) {
+
+        console.error(err)
+
+    }
+}
+
 function dateToLocal(date) {
     if(!date) return
     const timestamp = date.seconds + date.nanoseconds / 1e9;
@@ -79,6 +97,7 @@ onMounted( () => {
             <div class="test__quiestions-block block" :class="{'active': !dashboardIsActive}">
                 <test-questions-list :class="{'active': questionsListIsActive}"
                     :questions="testQuestions"
+                    @deleteQuestion="(index) => deleteQuestion(index)"
                 />
                 <create-single :class="{'active': createSingleIsActive}"
                     :testId="testId"
